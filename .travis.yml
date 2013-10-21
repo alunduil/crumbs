@@ -1,0 +1,10 @@
+language: python
+python:
+  - "3.2"
+  - "3.3"
+install:
+  - "pip install -q -r requirements.txt --use-mirrors"
+  - "pip install -q -r test_parameters/requirements.txt --use-mirrors"
+script:
+  - python setup.py install
+  - nosetests
