@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+#
 # Copyright (C) 2013 by Alex Brandt <alunduil@alunduil.com>
 #
 # parameters is freely distributable under the terms of an MIT-style license.
