@@ -14,8 +14,12 @@ import re
 
 try:
     from configparser import SafeConfigParser
+    from configparser import NoOptionError
+    from configparser import NoSectionError
 except ImportError:
     from ConfigParser import SafeConfigParser
+    from ConfigParser import NoOptionError
+    from ConfigParser import NoSectionError
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +109,7 @@ class Parameters(object):
         group = kwargs.pop('group', 'default')
         self.groups.add(group)
 
-        parameter_name = '.'.join([ group, parameter_name ]).lstrip('.')
+        parameter_name = '.'.join([ group, parameter_name ]).lstrip('.').replace('-', '_')
 
         logger.info('adding parameter %s', parameter_name)
 
@@ -209,9 +213,130 @@ class Parameters(object):
 
         logger.info('parsing parameters')
 
+        logger.debug('sys.argv: %s', sys.argv)
+
         if only_known:
             args = [ _ for _ in copy.copy(sys.argv) if not re.match('-h|--help', _) ]
 
             self._group_parsers['default'].parse_known_args(args = args, namespace = self._argument_namespace)
         else:
             self._group_parsers['default'].parse_args(namespace = self._argument_namespace)
+
+    def __getitem__(self, parameter_name):
+        '''Retrieve the specified parameter from this instance of Parameters.
+
+        There are a couple of niceties added to this interface that are shown in
+        detail in the examples below.  The niceties include the following:
+
+        * the '-' and '_' separators in parameter names are interchangeable and
+          the user does not need to be concerned about the similarity of foo-bar
+          and foor_bar as a result.  Both of these names if requested will
+          return the same stored value if it exists.
+        * if the key cannot be found as written the group of default will be
+          searched.  This means that if the user passes in the name foo but that
+          name is not present as is, the name default.foo will be tried.  This
+          also means that if a seemingly scoped name (i.e. foo.bar) is passed,
+          we will try the default prefixed name (i.e. defautl.foo.bar).
+
+        Arguments
+        ---------
+
+        :``parameter_name``: Name to retrive the value from the variuos sources
+
+        Returns
+        -------
+
+        Value of the given ``parameter_name`` from the highest priority source.
+
+        Precedence of Sources
+        ---------------------
+
+        The sources have a certain precedence that values may come from (this is
+        most apparent when the same name is defined in multiple sources).  That
+        precedence is the following:
+
+        :argument:      Argument vector or command line arguments
+        :configuration: Configuration files (all of equal precedence) (see
+                        add_configuration_file)
+        :environment:   Environment variables given to every process
+        :default:       Defined default values for the parameters added
+
+        These will be searched in reverse order as the source closest to the top
+        of the list will win and its value will be returned.
+
+        Examples
+        --------
+
+        Names can be prefixed with the argument's group if it had one (i.e.
+        foo.bar for group foo with option bar).  If options for a parameter were
+        specified with a separator (hyphen, '-', or underscore, '_') this
+        separator can be specified as either character with no loss of meaning.
+
+        .. note::
+            The last remark means that the names foo.bar-baz and foo.bar_baz are
+            not unique.
+
+        Environment variables relate to parameter names in a mostly obviuos way:
+
+        * foo.bar → ARGV0_FOO_BAR
+        * bar → ARGV0_BAR
+
+        .. note::
+            Parameters in the default group do not have their group added to the
+            environment variables' name while those that are in other groups do.
+
+        Of course, in the preceeding examples, ARGV0 is replaced with the name
+        for the invoking application, sys.argv[0].
+
+        '''
+
+        parameter_name = parameter_name.replace('-', '_')
+
+        logger.info('finding value of %s', parameter_name)
+
+        if parameter_name not in self.parameters:
+            parameter_name = '.'.join([ 'default', parameter_name ])
+
+            if parameter_name not in self.parameters:
+                raise KeyError(parameter_name.replace('default.', '', 1))
+
+        if not self.parsed:
+            logger.warn('retrieving values from unparsed Parameters')
+
+        default = self.defaults.get(parameter_name)
+
+        logger.info('default: %s', default)
+
+        value = os.environ.get('_'.join([ sys.argv[0] ] + parameter_name.replace('default.', '', 1).split('.')).upper(), default)
+
+        logger.info('environment: %s', value)
+
+        configuration_value = default
+        for configuration_file_name, configuration_file in self.configuration_files.items():
+            logger.info('searching %s', configuration_file_name)
+
+            try:
+                configuration_value = configuration_file.get(*parameter_name.split('.', 1))
+            except (NoOptionError, NoSectionError):
+                logger.info('%s not found', parameter_name)
+                continue
+
+            logger.info('value: %s', configuration_value)
+
+        logger.debug('configuration_value: %s', configuration_value)
+
+        if configuration_value != default:
+            value = configuration_value
+
+        logger.info('configuration: %s', value)
+
+        argument_value = getattr(self._argument_namespace, parameter_name.replace('.', '_', 1).replace('default_', '', 1), default)
+
+        logger.debug('argument_value: %s', argument_value)
+
+        if argument_value != default:
+            value = argument_value
+
+        logger.info('argument: %s', value)
+
+        return value

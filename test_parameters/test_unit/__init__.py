@@ -10,6 +10,9 @@ import tempfile
 import os
 import sys
 import functools
+import logging
+
+logger = logging.getLogger(__name__)
 
 try:
     from configparser import SafeConfigParser
@@ -85,6 +88,10 @@ class ParametersAddParametersTest(unittest.TestCase):
                     'options': [ '--foobaz' ],
                     'dest': 'quxbaz',
                     },
+                {
+                    'options': [ '--environment-only' ],
+                    'only': [ 'environment' ],
+                    },
                 )
 
         self.defaults = {
@@ -93,6 +100,7 @@ class ParametersAddParametersTest(unittest.TestCase):
                 'default.qux': 'foo',
                 'default.foobar': None,
                 'default.quxbaz': None,
+                'default.environment_only': None,
                 }
 
         self.parameters = {
@@ -126,6 +134,11 @@ class ParametersAddParametersTest(unittest.TestCase):
                     'options': [ '--foobaz' ],
                     'dest': 'quxbaz',
                     },
+                'default.environment_only': {
+                    'group': 'default',
+                    'options': [ '--environment-only' ],
+                    'only': [ 'environment' ],
+                    },
                 }
 
         self.groups = set([
@@ -140,7 +153,11 @@ class ParametersAddParametersTest(unittest.TestCase):
             self.p.add_parameter(**parameter)
 
         self.assertEqual(self.defaults, self.p.defaults)
+
+        _, self.maxDiff = self.maxDiff, None
         self.assertEqual(self.parameters, self.p.parameters)
+        self.maxDiff = _
+
         self.assertEqual(self.groups, self.p.groups)
         self.assertFalse(self.p.parsed)
 
@@ -197,10 +214,11 @@ class ParametersParseParametersTest(unittest.TestCase):
     def test_parse_only_known_with_help(self):
         '''Parameters().parse(only_known = True)—with --help'''
 
-        _ = sys.argv
         sys.argv.append('--help')
 
         self.p.parse(only_known = True)
+
+        sys.argv.remove('--help')
 
 class ParametersReadTest(unittest.TestCase):
     def setUp(self):
@@ -217,20 +235,22 @@ class ParametersReadTest(unittest.TestCase):
         self.p.add_parameter(options = ( '--multi', ))
 
     def populateEnvironment(self):
-        os.environ['PARAMETERS_ENV_ONLY'] = 'environment_only'
+        os.environ['PARAMETERS_ENVIRONMENT_ONLY'] = 'environment_only'
         os.environ['PARAMETERS_MULTI'] = 'environment_multi'
 
         def _(name):
             del os.environ[name]
 
-        self.addCleanup(functools.partial(_, 'PARAMETERS_ENV_ONLY'))
+        self.addCleanup(functools.partial(_, 'PARAMETERS_ENVIRONMENT_ONLY'))
         self.addCleanup(functools.partial(_, 'PARAMETERS_MULTI'))
 
-        self.p.add_parameter(options = ( '--env-only' ), only = ( 'environment' ))
+        self.p.add_parameter(options = ( '--environment-only', ), only = ( 'environment', ))
 
     def populateArgumentVector(self):
         sys.argv.extend([ '--argument-only', 'argument_only' ])
         sys.argv.extend([ '--multi', 'argument_multi' ])
+
+        logger.debug('sys.argv: %s', sys.argv)
 
         def _(name):
             sys.argv.remove(name)
@@ -238,12 +258,14 @@ class ParametersReadTest(unittest.TestCase):
         self.addCleanup(functools.partial(_, '--argument-only'))
         self.addCleanup(functools.partial(_, 'argument_only'))
         self.addCleanup(functools.partial(_, '--multi'))
-        self.addCleanup(functools.partial(_, 'argument_only'))
+        self.addCleanup(functools.partial(_, 'argument_multi'))
 
-        self.p.add_parameter(options = ( '--argument-only' ), only = ( 'argument' ))
+        logger.debug('sys.argv: %s', sys.argv)
+
+        self.p.add_parameter(options = ( '--argument-only', ), only = ( 'argument', ))
 
     def populateConfiguration(self):
-        tmp_fh = tempfile.NamedTemporaryFile()
+        tmp_fh = tempfile.NamedTemporaryFile(mode = 'w')
         tmp_fh.write(
                 '[default]\n'
                 'configuration_only = configuration_only\n'
@@ -254,27 +276,108 @@ class ParametersReadTest(unittest.TestCase):
 
         self.addCleanup(tmp_fh.close)
 
-        self.p.add_parameter(options = ( '--configuration-only' ), only = ( 'configuration' ))
+        self.p.add_parameter(options = ( '--configuration-only', ), only = ( 'configuration', ))
+        self.p.add_configuration_file(tmp_fh.name)
 
-    def test_read_environment(self):
-        '''Parameters—environment'''
+    def test_read_default_group(self):
+        '''Read Parameters—implicit default group
+
+        Verify that the default group is added if no key is found as is.
+
+        '''
 
         self.populateEnvironment()
 
-    def test_read_environment_only(self):
-        pass
+        self.p.parse()
 
-    def test_read_configuration_only(self):
-        pass
+        self.assertEqual('environment_only', self.p['environment_only'])
+        self.assertEqual('environment_multi', self.p['multi'])
 
-    def test_read_argument_only(self):
-        pass
+    def test_read_underscores_or_hyphens(self):
+        '''Read Parameters—insensitive to '-' vs '_' '''
 
-    def test_read_environment_multi(self):
-        pass
+        self.populateEnvironment()
 
-    def test_read_configuration_multi(self):
-        pass
+        self.p.parse()
 
-    def test_read_argument_multi(self):
-        pass
+        self.assertEqual('environment_only', self.p['default.environment-only'])
+
+    def test_read_environment(self):
+        '''Read Parameters—environment'''
+
+        self.populateEnvironment()
+
+        self.p.parse()
+
+        self.assertEqual('environment_only', self.p['default.environment_only'])
+        self.assertEqual('environment_multi', self.p['default.multi'])
+
+    def test_read_configuration(self):
+        '''Read Parameters—configuration'''
+
+        self.populateConfiguration()
+
+        self.p.parse()
+
+        self.assertEqual('configuration_only', self.p['default.configuration_only'])
+        self.assertEqual('configuration_multi', self.p['default.multi'])
+
+    def test_read_argument(self):
+        '''Read Parameters—argument'''
+
+        self.populateArgumentVector()
+
+        self.p.parse()
+
+        self.assertEqual('argument_only', self.p['default.argument_only'])
+        self.assertEqual('argument_multi', self.p['default.multi'])
+
+    def test_read_environment_configuration(self):
+        '''Read Parameters—environment,configuration'''
+
+        self.populateEnvironment()
+        self.populateConfiguration()
+
+        self.p.parse()
+
+        self.assertEqual('environment_only', self.p['default.environment_only'])
+        self.assertEqual('configuration_only', self.p['default.configuration_only'])
+        self.assertEqual('configuration_multi', self.p['default.multi'])
+
+    def test_read_environment_argument(self):
+        '''Read Parameters—environment,argument'''
+
+        self.populateEnvironment()
+        self.populateArgumentVector()
+
+        self.p.parse()
+
+        self.assertEqual('environment_only', self.p['default.environment_only'])
+        self.assertEqual('argument_only', self.p['default.argument_only'])
+        self.assertEqual('argument_multi', self.p['default.multi'])
+
+    def test_read_configuration_argument(self):
+        '''Read Parameters—configuration,argument'''
+
+        self.populateConfiguration()
+        self.populateArgumentVector()
+
+        self.p.parse()
+
+        self.assertEqual('configuration_only', self.p['default.configuration_only'])
+        self.assertEqual('argument_only', self.p['default.argument_only'])
+        self.assertEqual('argument_multi', self.p['default.multi'])
+
+    def test_read_environment_configuration_argument(self):
+        '''Read Parameters—environment,configuration,argument'''
+
+        self.populateEnvironment()
+        self.populateConfiguration()
+        self.populateArgumentVector()
+
+        self.p.parse()
+
+        self.assertEqual('environment_only', self.p['default.environment_only'])
+        self.assertEqual('configuration_only', self.p['default.configuration_only'])
+        self.assertEqual('argument_only', self.p['default.argument_only'])
+        self.assertEqual('argument_multi', self.p['default.multi'])
