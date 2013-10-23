@@ -7,6 +7,8 @@ import logging
 import argparse
 import copy
 import os
+import sys
+import re
 
 try:
     from configparser import SafeConfigParser
@@ -43,6 +45,7 @@ class Parameters(object):
         self.parsed = False
 
         self._group_parsers = { 'default': argparse.ArgumentParser(*args, **kwargs) }
+        self._argument_namespace = argparse.Namespace()
 
     def add_parameter(self, **kwargs):
         '''Add the specified components as a parameter.
@@ -162,3 +165,51 @@ class Parameters(object):
             self.configuration_files[file_name].read(file_name)
         else:
             logger.warn('could not read %s', file_name)
+
+    def parse(self, only_known = False):
+        '''Parse the sources and prepare them for searching.
+
+        This ensures that the sources (environment, configuration(s), and
+        arguments) are in a state that we can begin retrieving items.  If the
+        ``only_known`` is ``True`` then we don't concern ourself with
+        parameters that were specified that we don't know about yet.  This
+        allows us to get parameters that tell us where other parameters might
+        be hiding (i.e. configuration files).
+
+        Arguments
+        ---------
+
+        :``only_known``: Parse only the parameters we have record of if this is
+                         set to True; otherwise, parse everything and do full
+                         error handling of parameters
+
+        .. note::
+            Once parse is called (without ``only_known``) it is inadvisable to
+            add any more parameters to the structure.
+
+         This marks the parsed property to true if full parsing has or is
+         occurring.  parsed will be marked according to the following logic::
+            parsed ← ( only_known → parsed )
+
+        .. note::
+            There is nothing special about parsing configuration files or the
+            environment and these lookups happen against the live (when they
+            were created) values contained in these sources.
+
+        If ``only_known`` is ``True``, the ``--help`` or ``-h`` options will be
+        ignored during this parsing so that the parser can be fully loaded in
+        the event that you want to use parameters before you've finished adding
+        all of your required parameters.
+
+        '''
+
+        self.parsed = not only_known or self.parsed
+
+        logger.info('parsing parameters')
+
+        if only_known:
+            args = [ _ for _ in copy.copy(sys.argv) if not re.match('-h|--help', _) ]
+
+            self._group_parsers['default'].parse_known_args(args = args, namespace = self._argument_namespace)
+        else:
+            self._group_parsers['default'].parse_args(namespace = self._argument_namespace)

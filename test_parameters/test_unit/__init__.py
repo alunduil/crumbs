@@ -169,7 +169,38 @@ class ParametersAddConfigurationFileTest(unittest.TestCase):
         self.assertIsInstance(self.p.configuration_files[self.file_name], SafeConfigParser)
 
 class ParametersParseParametersTest(unittest.TestCase):
-    pass
+    '''Test the calls without actual parsing.
+
+    This set of tests does not actually test the parsing of the sources but
+    only ensures that the state is updated correctly.  Proper parsing and
+    retrieval is handled in the read tests below.
+
+    '''
+
+    def setUp(self):
+        self.p = Parameters()
+
+    def test_parse(self):
+        '''Parameters().parse()'''
+
+        self.p.parse()
+
+        self.assertTrue(self.p.parsed)
+
+    def test_parse_only_known(self):
+        '''Parameters().parse(only_known = True)'''
+
+        self.p.parse(only_known = True)
+
+        self.assertFalse(self.p.parsed)
+
+    def test_parse_only_known_with_help(self):
+        '''Parameters().parse(only_known = True)—with --help'''
+
+        _ = sys.argv
+        sys.argv.append('--help')
+
+        self.p.parse(only_known = True)
 
 class ParametersReadTest(unittest.TestCase):
     def setUp(self):
