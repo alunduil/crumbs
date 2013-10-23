@@ -165,9 +165,8 @@ class Parameters(object):
 
         logger.info('adding %s to configuration files', file_name)
 
-        self.configuration_files[file_name] = SafeConfigParser()
-
         if os.access(file_name, os.R_OK):
+            self.configuration_files[file_name] = SafeConfigParser()
             self.configuration_files[file_name].read(file_name)
         else:
             logger.warn('could not read %s', file_name)
