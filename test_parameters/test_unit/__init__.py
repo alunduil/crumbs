@@ -11,6 +11,11 @@ import os
 import sys
 import functools
 
+try:
+    from configparser import SafeConfigParser
+except ImportError:
+    from ConfigParser import SafeConfigParser
+
 from parameters import Parameters
 
 class ParametersCreateTest(unittest.TestCase):
@@ -133,17 +138,31 @@ class ParametersAddParametersTest(unittest.TestCase):
             self.p.add_parameter(**parameter)
 
         self.assertEqual(self.defaults, self.p.defaults)
-
-        _ = self.maxDiff
-        self.maxDiff = None
         self.assertEqual(self.parameters, self.p.parameters)
-        self.maxDiff = _
-
         self.assertEqual(self.groups, self.p.groups)
         self.assertFalse(self.p.parsed)
 
 class ParametersAddConfigurationFileTest(unittest.TestCase):
-    pass
+    def setUp(self):
+        tmp_fh = tempfile.NamedTemporaryFile(mode = 'w')
+        tmp_fh.write(
+                '[default]\n'
+                'foo = bar\n'
+                )
+
+        tmp_fh.seek(0)
+
+        self.addCleanup(tmp_fh.close)
+
+        self.file_name = tmp_fh.name
+
+        self.p = Parameters()
+
+    def test_add_configuration_file(self):
+        self.p.add_configuration_file(self.file_name)
+
+        self.assertEqual([ self.file_name ], list(self.p.configuration_files.keys()))
+        self.assertIsInstance(self.p.configuration_files[self.file_name], SafeConfigParser)
 
 class ParametersParseParametersTest(unittest.TestCase):
     pass
@@ -160,6 +179,8 @@ class ParametersReadTest(unittest.TestCase):
 
         self.p = Parameters()
 
+        self.p.add_parameter(options = ( '--multi', ))
+
     def populateEnvironment(self):
         os.environ['PARAMETERS_ENV_ONLY'] = 'environment_only'
         os.environ['PARAMETERS_MULTI'] = 'environment_multi'
@@ -169,6 +190,8 @@ class ParametersReadTest(unittest.TestCase):
 
         self.addCleanup(functools.partial(_, 'PARAMETERS_ENV_ONLY'))
         self.addCleanup(functools.partial(_, 'PARAMETERS_MULTI'))
+
+        self.p.add_parameter(options = ( '--env-only' ), only = ( 'environment' ))
 
     def populateArgumentVector(self):
         sys.argv.extend([ '--argument-only', 'argument_only' ])
@@ -182,6 +205,8 @@ class ParametersReadTest(unittest.TestCase):
         self.addCleanup(functools.partial(_, '--multi'))
         self.addCleanup(functools.partial(_, 'argument_only'))
 
+        self.p.add_parameter(options = ( '--argument-only' ), only = ( 'argument' ))
+
     def populateConfiguration(self):
         tmp_fh = tempfile.NamedTemporaryFile()
         tmp_fh.write(
@@ -193,6 +218,8 @@ class ParametersReadTest(unittest.TestCase):
         tmp_fh.seek(0)
 
         self.addCleanup(tmp_fh.close)
+
+        self.p.add_parameter(options = ( '--configuration-only' ), only = ( 'configuration' ))
 
     def test_read_environment(self):
         '''Parameters—environment'''

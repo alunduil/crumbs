@@ -6,6 +6,12 @@
 import logging
 import argparse
 import copy
+import os
+
+try:
+    from configparser import SafeConfigParser
+except ImportError:
+    from ConfigParser import SafeConfigParser
 
 logger = logging.getLogger(__name__)
 
@@ -125,3 +131,34 @@ class Parameters(object):
                 self._group_parsers[group] = self._group_parsers['default'].add_argument_group(group)
 
             self._group_parsers[group].add_argument(*kwargs.pop('options'), **kwargs)
+
+    def add_configuration_file(self, file_name):
+        '''Add a configuration file to be searched for parameters.
+
+        The configuration file name passed will be added to the parameter
+        search space.  The file is expected to be an ini style file as we
+        utilize the built-in configparser module to actually read the values
+        from the file.
+
+        The files are not searched in any particular order and duplicates take
+        the last value found in the last file it was present.
+
+        .. note::
+            Perhaps we should change this so that the ordering is the reverse
+            order that the files will be searched?
+
+        Arguments
+        ---------
+
+        :``file_name``: Name of the file to add to the parameter search.
+
+        '''
+
+        logger.info('adding %s to configuration files', file_name)
+
+        self.configuration_files[file_name] = SafeConfigParser()
+
+        if os.access(file_name, os.R_OK):
+            self.configuration_files[file_name].read(file_name)
+        else:
+            logger.warn('could not read %s', file_name)
