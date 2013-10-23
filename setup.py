@@ -78,7 +78,7 @@ with open('requirements.txt', 'r') as req_fh:
 with open('test_parameters/requirements.txt', 'r') as req_fh:
     PARAMS['tests_require'] = req_fh.readlines()
 
-PARAMS['test_suire'] = 'nose.collector'
+PARAMS['test_suite'] = 'nose.collector'
 
 PARAMS['packages'] = [
         'parameters',
