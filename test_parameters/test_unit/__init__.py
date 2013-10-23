@@ -134,6 +134,8 @@ class ParametersAddParametersTest(unittest.TestCase):
                 ])
 
     def test_add_parameters(self):
+        '''Parameters().add_parameter()'''
+
         for parameter in self.in_parameters:
             self.p.add_parameter(**parameter)
 
@@ -159,6 +161,8 @@ class ParametersAddConfigurationFileTest(unittest.TestCase):
         self.p = Parameters()
 
     def test_add_configuration_file(self):
+        '''Parameters().add_configuration_file()'''
+
         self.p.add_configuration_file(self.file_name)
 
         self.assertEqual([ self.file_name ], list(self.p.configuration_files.keys()))

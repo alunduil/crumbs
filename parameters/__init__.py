@@ -112,7 +112,7 @@ class Parameters(object):
 
         logger.info('group: %s', group)
 
-        actions = {
+        action_defaults = {
                 'store': kwargs.get('default'),
                 'store_const': kwargs.get('const'),
                 'store_true': False,
@@ -122,7 +122,7 @@ class Parameters(object):
                 'count': 0,
                 }
 
-        self.defaults[parameter_name] = actions[kwargs.get('action', 'store')]
+        self.defaults[parameter_name] = action_defaults[kwargs.get('action', 'store')]
 
         logger.info('default value: %s', kwargs.get('default'))
 
