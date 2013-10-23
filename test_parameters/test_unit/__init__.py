@@ -40,8 +40,8 @@ class ParametersCreateTest(unittest.TestCase):
         self.assertEqual({}, p.defaults)
         self.assertEqual({}, p.parameters)
         self.assertEqual({}, p.configuration_files)
-        self.assertEqual({ 'default': {} }, p.groups)
-        self.assertEqual(False, p.parsed)
+        self.assertEqual([ 'default' ], p.groups)
+        self.assertFalse(p.parsed)
 
 class ParametersReadTest(unittest.TestCase):
     def test_read_environment_only(self):
