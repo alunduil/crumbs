@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2013 by Alex Brandt <alunduil@alunduil.com>
 #
-# parameters is freely distributable under the terms of an MIT-style license.
+# crumbs is freely distributable under the terms of an MIT-style license.
 # See COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 import unittest
@@ -19,7 +19,7 @@ try:
 except ImportError:
     from ConfigParser import SafeConfigParser
 
-from parameters import Parameters
+from crumbs import Parameters
 
 class ParametersCreateTest(unittest.TestCase):
     def test_parameters_create(self):
@@ -228,21 +228,21 @@ class ParametersReadTest(unittest.TestCase):
             sys.argv[0] = self.original_argv0
         self.addCleanup(_)
 
-        sys.argv[0] = 'parameters'
+        sys.argv[0] = 'crumbs'
 
         self.p = Parameters()
 
         self.p.add_parameter(options = ( '--multi', ))
 
     def populateEnvironment(self):
-        os.environ['PARAMETERS_ENVIRONMENT_ONLY'] = 'environment_only'
-        os.environ['PARAMETERS_MULTI'] = 'environment_multi'
+        os.environ['CRUMBS_ENVIRONMENT_ONLY'] = 'environment_only'
+        os.environ['CRUMBS_MULTI'] = 'environment_multi'
 
         def _(name):
             del os.environ[name]
 
-        self.addCleanup(functools.partial(_, 'PARAMETERS_ENVIRONMENT_ONLY'))
-        self.addCleanup(functools.partial(_, 'PARAMETERS_MULTI'))
+        self.addCleanup(functools.partial(_, 'CRUMBS_ENVIRONMENT_ONLY'))
+        self.addCleanup(functools.partial(_, 'CRUMBS_MULTI'))
 
         self.p.add_parameter(options = ( '--environment-only', ), only = ( 'environment', ))
 

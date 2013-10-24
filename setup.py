@@ -1,6 +1,6 @@
 # Copyright (C) 2013 by Alex Brandt <alunduil@alunduil.com>
 #
-# pmort is freely distributable under the terms of an MIT-style license.
+# crumbs is freely distributable under the terms of an MIT-style license.
 # See COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 # -----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ use_setuptools()
 
 from setuptools import setup
 
-from parameters import information
+from crumbs import information
 
 PARAMS = {}
 
@@ -62,6 +62,7 @@ PARAMS['classifiers'] = [
         ]
 
 PARAMS['keywords'] = [
+        'crumbs',
         'parameters',
         'configuration',
         'environment',
@@ -69,19 +70,19 @@ PARAMS['keywords'] = [
         ]
 
 PARAMS['provides'] = [
-        'parameters',
+        'crumbs',
         ]
 
 with open('requirements.txt', 'r') as req_fh:
     PARAMS['install_requires'] = req_fh.readlines()
 
-with open('test_parameters/requirements.txt', 'r') as req_fh:
+with open('test_crumbs/requirements.txt', 'r') as req_fh:
     PARAMS['tests_require'] = req_fh.readlines()
 
 PARAMS['test_suite'] = 'nose.collector'
 
 PARAMS['packages'] = [
-        'parameters',
+        'crumbs',
         ]
 
 PARAMS['data_files'] = [

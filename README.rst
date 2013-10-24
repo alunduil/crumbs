@@ -15,19 +15,19 @@ Installation
 This package is stored in PyPI and can be installed the standard way:
 
 .. code-block:: shell
-    pip install particulars
+    pip install crumbs
 
 The latest release available is:
 
-.. image:: https://badge.fury.io/py/particulars.png
-    :target: http://badge.fury.io/py/particulars
+.. image:: https://badge.fury.io/py/crumbs.png
+    :target: http://badge.fury.io/py/crumbs
 
 If you would prefer to clone this package directly from git or assist with
-development, the URL is https://github.com/alunduil/particulars and the current
+development, the URL is https://github.com/alunduil/crumbs and the current
 status of the build is:
 
-.. image:: https://secure.travis-ci.org/alunduil/particulars.png?branch=master
-   :target: http://travis-ci.org/alunduil/particulars
+.. image:: https://secure.travis-ci.org/alunduil/crumbs.png?branch=master
+   :target: http://travis-ci.org/alunduil/crumbs
 
 Usage
 =====
@@ -35,7 +35,7 @@ Usage
 Usage of this package is outlined in the module's documentation:
 
 .. code-block:: shell
-    pydoc particulars
+    pydoc crumbs
 
 Authors
 =======
@@ -46,7 +46,7 @@ Known Issues
 ============
 
 Known issues can be found in the github issue list at
-https://github.com/alunduil/particulars/issues.
+https://github.com/alunduil/crumbs/issues.
 
 Troubleshooting
 ===============
