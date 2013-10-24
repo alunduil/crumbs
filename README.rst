@@ -24,8 +24,8 @@ If you would prefer to clone this package directly from git or assist with
 development, the URL is https://github.com/alunduil/particulars and the current
 status of the build is:
 
-.. image:: https://secure.travis-ci.org/alunduil/parameters.png?branch=master
-   :target: http://travis-ci.org/alunduil/parameters
+.. image:: https://secure.travis-ci.org/alunduil/particulars.png?branch=master
+   :target: http://travis-ci.org/alunduil/particulars
 
 Usage
 =====
