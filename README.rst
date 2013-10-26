@@ -14,7 +14,7 @@ Installation
 
 This package is stored in PyPI and can be installed the standard way:
 
-.. code-block:: shell
+.. code-block::
     pip install crumbs
 
 The latest release available is:
@@ -34,7 +34,7 @@ Usage
 
 Usage of this package is outlined in the module's documentation:
 
-.. code-block:: shell
+.. code-block::
     pydoc crumbs
 
 Authors
