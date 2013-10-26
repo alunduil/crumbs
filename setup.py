@@ -14,8 +14,6 @@ else:
     import configparser
     configparser_name = 'configparser'
 
-print 'configparser_name:', configparser_name
-
 original_sections = sys.modules[configparser_name].ConfigParser.sections
 
 def monkey_sections(self):
