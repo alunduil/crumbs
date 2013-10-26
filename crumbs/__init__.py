@@ -118,6 +118,7 @@ class Parameters(object):
 
         self.parameters[parameter_name] = copy.copy(kwargs)
         self.parameters[parameter_name]['group'] = group
+        self.parameters[parameter_name]['type'] = kwargs.get('type', str)
 
         logger.info('group: %s', group)
 
@@ -338,4 +339,4 @@ class Parameters(object):
 
         logger.info('argument: %s', value)
 
-        return value
+        return self.parameters[parameter_name]['type'](value)

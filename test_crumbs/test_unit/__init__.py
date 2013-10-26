@@ -114,29 +114,34 @@ class ParametersAddParametersTest(unittest.TestCase):
                 'default.baz': {
                     'group': 'default',
                     'options': [ '--baz', '-b' ],
+                    'type': str,
                     'action': 'store_true',
                     'help': 'assistance is futile',
                     },
                 'default.qux': {
                     'group': 'default',
                     'options': [ '--qux', '-q' ],
+                    'type': str,
                     'default': 'foo',
                     'help': 'assistance is futile',
                     },
                 'default.foobar': {
                     'group': 'default',
                     'options': [ 'foobar' ],
+                    'type': str,
                     'nargs': '*',
                     'help': 'assistance is futile',
                     },
                 'default.quxbaz': {
                     'group': 'default',
                     'options': [ '--foobaz' ],
+                    'type': str,
                     'dest': 'quxbaz',
                     },
                 'default.environment_only': {
                     'group': 'default',
                     'options': [ '--environment-only' ],
+                    'type': str,
                     'only': [ 'environment' ],
                     },
                 }
@@ -301,6 +306,19 @@ class ParametersReadTest(unittest.TestCase):
         self.p.parse()
 
         self.assertEqual('environment_only', self.p['default.environment-only'])
+
+    def test_read_type(self):
+        '''Read Parameters—correct typing'''
+
+        self.p.add_parameter(
+                options = [ '--type-int', ],
+                type = int,
+                default = 10,
+                )
+
+        self.p.parse()
+
+        self.assertEqual(10, self.p['default.type_int'])
 
     def test_read_environment(self):
         '''Read Parameters—environment'''
