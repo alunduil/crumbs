@@ -7,12 +7,14 @@
 import sys
 import traceback
 
-try:
-    import configparser
-    configparser_name = 'configparser'
-except ImportError:
+if sys.version_info.major < 3:
     import ConfigParser
     configparser_name = 'ConfigParser'
+else:
+    import configparser
+    configparser_name = 'configparser'
+
+print 'configparser_name:', configparser_name
 
 original_sections = sys.modules[configparser_name].ConfigParser.sections
 
