@@ -275,6 +275,7 @@ class ParametersReadTest(unittest.TestCase):
                 '[default]\n'
                 'configuration_only = configuration_only\n'
                 'multi = configuration_multi\n'
+                'type_int = 15\n'
                 )
 
         tmp_fh.seek(0)
@@ -310,6 +311,8 @@ class ParametersReadTest(unittest.TestCase):
     def test_read_type(self):
         '''Read Parameters—correct typing'''
 
+        self.populateConfiguration()
+
         self.p.add_parameter(
                 options = [ '--type-int', ],
                 type = int,
@@ -318,7 +321,7 @@ class ParametersReadTest(unittest.TestCase):
 
         self.p.parse()
 
-        self.assertEqual(10, self.p['default.type_int'])
+        self.assertEqual(15, self.p['default.type_int'])
 
     def test_read_environment(self):
         '''Read Parameters—environment'''
