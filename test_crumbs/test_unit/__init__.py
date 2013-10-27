@@ -58,7 +58,7 @@ class ParametersCreateTest(unittest.TestCase):
 
 class ParametersAddParametersTest(unittest.TestCase):
     def setUp(self):
-        self.p = Parameters(conflict_handler = 'resolve')
+        self.p = Parameters(group_prefix = False, conflict_handler = 'resolve')
 
         self.in_parameters = (
                 {
@@ -225,6 +225,50 @@ class ParametersParseParametersTest(unittest.TestCase):
 
         sys.argv.remove('--help')
 
+class ParametersGroupingTest(unittest.TestCase):
+    def setUp(self):
+        self.original_argv0 = sys.argv[0]
+
+        def _():
+            sys.argv[0] = self.original_argv0
+        self.addCleanup(_)
+
+        sys.argv[0] = 'crumbs'
+
+    def test_parameters_with_groups(self):
+        p = Parameters(group_prefix = True)
+
+        sys.argv.extend([ '--bar-foo', 'with_group' ])
+
+        self.addCleanup(functools.partial(sys.argv.remove, '--bar-foo'))
+        self.addCleanup(functools.partial(sys.argv.remove, 'with_group'))
+
+        p.add_parameter(
+                options = [ '--foo' ],
+                group = 'bar',
+                )
+
+        p.parse()
+
+        self.assertEqual('with_group', p['bar.foo'])
+
+    def test_parameters_without_groups(self):
+        p = Parameters(group_prefix = False)
+
+        sys.argv.extend([ '--foo', 'without_group' ])
+
+        self.addCleanup(functools.partial(sys.argv.remove, '--foo'))
+        self.addCleanup(functools.partial(sys.argv.remove, 'without_group'))
+
+        p.add_parameter(
+                options = [ '--foo' ],
+                group = 'bar',
+                )
+
+        p.parse()
+
+        self.assertEqual('without_group', p['bar.foo'])
+
 class ParametersReadTest(unittest.TestCase):
     def setUp(self):
         self.original_argv0 = sys.argv[0]
@@ -237,7 +281,7 @@ class ParametersReadTest(unittest.TestCase):
 
         self.p = Parameters()
 
-        self.p.add_parameter(options = ( '--multi', ))
+        self.p.add_parameter(options = [ '--multi', ])
 
     def populateEnvironment(self):
         os.environ['CRUMBS_ENVIRONMENT_ONLY'] = 'environment_only'
@@ -264,7 +308,7 @@ class ParametersReadTest(unittest.TestCase):
 
         logger.debug('sys.argv: %s', sys.argv)
 
-        self.p.add_parameter(options = ( '--argument-only', ), only = ( 'argument', ))
+        self.p.add_parameter(options = [ '--argument-only', ], only = ( 'argument', ))
 
     def populateConfiguration(self):
         tmp_fh = tempfile.NamedTemporaryFile(mode = 'w')

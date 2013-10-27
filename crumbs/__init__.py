@@ -36,9 +36,13 @@ class Parameters(object):
         Arguments
         ---------
 
-        Any passed arguments are picked up by wildcards (*args and **kwargs).
-        These are passed directly to an instance of ArgumentParser for
-        initialization.
+        :``group_prefix``: Prefix command line arguments with the group name if
+                           this is True; otherwise, ignore groups on command
+                           line arguments.
+
+        Any other passed arguments are picked up by wildcards (*args and
+        **kwargs).  These are passed directly to an instance of ArgumentParser
+        for initialization.
 
         '''
 
@@ -49,6 +53,8 @@ class Parameters(object):
         self.configuration_files = {}
         self.groups = set([ 'default' ])
         self.parsed = False
+
+        self._group_prefix = kwargs.pop('group_prefix', True)
 
         self._group_parsers = { 'default': argparse.ArgumentParser(*args, **kwargs) }
         self._argument_namespace = argparse.Namespace()
@@ -139,6 +145,14 @@ class Parameters(object):
         if 'argument' in kwargs.pop('only', [ 'argument' ]):
             if group not in self._group_parsers:
                 self._group_parsers[group] = self._group_parsers['default'].add_argument_group(group)
+
+            if self._group_prefix and group != 'default':
+                long_option = max(kwargs['options'], key = len)
+
+                kwargs['options'].remove(long_option)
+                kwargs['options'].append(long_option.replace('--', '--' + group + '-'))
+
+                logger.debug('options: %s', kwargs['options'])
 
             self._group_parsers[group].add_argument(*kwargs.pop('options'), **kwargs)
 
@@ -330,7 +344,16 @@ class Parameters(object):
 
         logger.info('configuration: %s', value)
 
-        argument_value = getattr(self._argument_namespace, parameter_name.replace('.', '_', 1).replace('default_', '', 1), default)
+        argument_name = parameter_name
+        
+        if self._group_prefix:
+            argument_name = argument_name.replace('.', '_', 1)
+        else:
+            _, argument_name = argument_name.split('.', 1)
+
+        argument_name = argument_name.replace('default_', '', 1)
+
+        argument_value = getattr(self._argument_namespace, argument_name, default)
 
         logger.debug('argument_value: %s', argument_value)
 
