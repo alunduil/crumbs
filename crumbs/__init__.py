@@ -38,7 +38,7 @@ class Parameters(object):
 
         :``group_prefix``: Prefix command line arguments with the group name if
                            this is True; otherwise, ignore groups on command
-                           line arguments.
+                           line arguments.  Default: True.
 
         Any other passed arguments are picked up by wildcards (*args and
         **kwargs).  These are passed directly to an instance of ArgumentParser
@@ -345,7 +345,7 @@ class Parameters(object):
         logger.info('configuration: %s', value)
 
         argument_name = parameter_name
-        
+
         if self._group_prefix:
             argument_name = argument_name.replace('.', '_', 1)
         else:
