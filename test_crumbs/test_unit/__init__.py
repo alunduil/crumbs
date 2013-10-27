@@ -257,13 +257,10 @@ class ParametersReadTest(unittest.TestCase):
 
         logger.debug('sys.argv: %s', sys.argv)
 
-        def _(name):
-            sys.argv.remove(name)
-
-        self.addCleanup(functools.partial(_, '--argument-only'))
-        self.addCleanup(functools.partial(_, 'argument_only'))
-        self.addCleanup(functools.partial(_, '--multi'))
-        self.addCleanup(functools.partial(_, 'argument_multi'))
+        self.addCleanup(functools.partial(sys.argv.remove, '--argument-only'))
+        self.addCleanup(functools.partial(sys.argv.remove, 'argument_only'))
+        self.addCleanup(functools.partial(sys.argv.remove, '--multi'))
+        self.addCleanup(functools.partial(sys.argv.remove, 'argument_multi'))
 
         logger.debug('sys.argv: %s', sys.argv)
 
