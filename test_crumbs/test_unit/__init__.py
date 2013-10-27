@@ -321,6 +321,7 @@ class ParametersReadTest(unittest.TestCase):
 
         self.p.parse()
 
+        self.assertIsInstance(self.p['default.type_int'], int)
         self.assertEqual(15, self.p['default.type_int'])
 
     def test_read_environment(self):
