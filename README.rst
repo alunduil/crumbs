@@ -12,9 +12,8 @@ automatically upon retrieval.  This way the most expected value is always used.
 Installation
 ============
 
-This package is stored in PyPI and can be installed the standard way:
+This package is stored in PyPI and can be installed the standard way::
 
-.. code-block::
     pip install crumbs
 
 The latest release available is:
@@ -32,9 +31,8 @@ status of the build is:
 Usage
 =====
 
-Usage of this package is outlined in the module's documentation:
+Usage of this package is outlined in the module's documentation::
 
-.. code-block::
     pydoc crumbs
 
 Authors
