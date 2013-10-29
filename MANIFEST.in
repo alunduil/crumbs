@@ -1,3 +1,3 @@
 include ez_setup.py
-include requirements.py
-include test_crumbs/requirements.py
+include requirements.txt
+include test_crumbs/requirements.txt
