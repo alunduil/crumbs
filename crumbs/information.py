@@ -7,11 +7,6 @@ NAME = 'crumbs'
 VERSION = '9999'
 DESCRIPTION = \
         'Generalized all-in-one parameters module.'
-LONG_DESCRIPTION = \
-        'Allows a single definition of parameters that parses all possible ' \
-        'input sources.  Sources including the environment, configuration ' \
-        'files, and command line arguments.  This library provides a simple ' \
-        'interface that consistently accesses these sources.'
 AUTHOR = 'Alex Brandt'
 AUTHOR_EMAIL = 'alunduil@alunduil.com'
 URL = 'https://github.com/alunduil/crumbs'

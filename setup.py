@@ -45,7 +45,10 @@ PARAMS = {}
 PARAMS['name'] = information.NAME
 PARAMS['version'] = information.VERSION
 PARAMS['description'] = information.DESCRIPTION
-PARAMS['long_description'] = information.LONG_DESCRIPTION
+
+with open('README.rst', 'r') as fh:
+    PARAMS['long_description'] = fh.read()
+
 PARAMS['author'] = information.AUTHOR
 PARAMS['author_email'] = information.AUTHOR_EMAIL
 PARAMS['url'] = information.URL
