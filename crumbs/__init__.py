@@ -150,7 +150,7 @@ class Parameters(object):
                 long_option = max(kwargs['options'], key = len)
 
                 kwargs['options'].remove(long_option)
-                kwargs['options'].append(long_option.replace('--', '--' + group + '-'))
+                kwargs['options'].append(long_option.replace('--', '--' + group.replace('_', '-') + '-'))
 
                 logger.debug('options: %s', kwargs['options'])
 
