@@ -269,6 +269,23 @@ class ParametersGroupingTest(unittest.TestCase):
 
         self.assertEqual('without_group', p['bar.foo'])
 
+    def test_parameters_with_group_with_underscore(self):
+        p = Parameters(group_prefix = True)
+
+        sys.argv.extend([ '--under-score-group', 'with_underscore' ])
+
+        self.addCleanup(functools.partial(sys.argv.remove, '--under-score-group'))
+        self.addCleanup(functools.partial(sys.argv.remove, 'with_underscore'))
+
+        p.add_parameter(
+                options = [ '--group' ],
+                group = 'under_score',
+                )
+
+        p.parse()
+
+        self.assertEqual('with_underscore', p['under_score.group'])
+
 class ParametersReadTest(unittest.TestCase):
     def setUp(self):
         self.original_argv0 = sys.argv[0]
