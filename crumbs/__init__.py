@@ -50,6 +50,7 @@ class Parameters(object):
 
         self.defaults = {}
         self.parameters = {}
+        self.grouped_parameters = { 'default': {} }
         self.configuration_files = {}
         self.groups = set([ 'default' ])
         self.parsed = False

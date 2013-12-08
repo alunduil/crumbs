@@ -74,6 +74,7 @@ class ParametersCreateTest(BaseParametersTest):
 
         self.assertEqual({}, p.defaults)
         self.assertEqual({}, p.parameters)
+        self.assertEqual({ 'default': {} }, p.grouped_parameters)
         self.assertEqual({}, p.configuration_files)
         self.assertEqual(set([ 'default' ]), p.groups)
         self.assertFalse(p.parsed)
