@@ -21,6 +21,10 @@ except ImportError:
 
 from crumbs import Parameters
 
+from test_crumbs.test_fixtures import PARAMETERS
+from test_crumbs.test_fixtures import extract_dictionary
+from test_crumbs.test_fixtures import extract_set
+
 class ParametersCreateTest(unittest.TestCase):
     def test_parameters_create(self):
         '''Parameters()
@@ -57,113 +61,21 @@ class ParametersCreateTest(unittest.TestCase):
         self.assertFalse(p.parsed)
 
 class ParametersAddParametersTest(unittest.TestCase):
-    def setUp(self):
+    def test_add_parameters_no_group_prefix_resolve_conflict_handler(self):
+        '''Parameters(group_prefix = False, conflict_handler = resolve).add_parameter()'''
+
         self.p = Parameters(group_prefix = False, conflict_handler = 'resolve')
 
-        self.in_parameters = (
-                {
-                    'group': 'foo',
-                    'options': [ '--bar', '-b' ],
-                    'default': 'baz',
-                    'type': str,
-                    'help': 'assistance is futile',
-                    },
-                {
-                    'group': 'default',
-                    'options': [ '--baz', '-b' ],
-                    'action': 'store_true',
-                    'help': 'assistance is futile',
-                    },
-                {
-                    'options': [ '--qux', '-q' ],
-                    'default': 'foo',
-                    'help': 'assistance is futile',
-                    },
-                {
-                    'options': [ 'foobar' ],
-                    'nargs': '*',
-                    'help': 'assistance is futile',
-                    },
-                {
-                    'options': [ '--foobaz' ],
-                    'dest': 'quxbaz',
-                    },
-                {
-                    'options': [ '--environment-only' ],
-                    'only': [ 'environment' ],
-                    },
-                )
+        for parameter in PARAMETERS:
+            self.p.add_parameter(**parameter['input'])
 
-        self.defaults = {
-                'foo.bar': 'baz',
-                'default.baz': False,
-                'default.qux': 'foo',
-                'default.foobar': None,
-                'default.quxbaz': None,
-                'default.environment_only': None,
-                }
-
-        self.parameters = {
-                'foo.bar': {
-                    'group': 'foo',
-                    'options': [ '--bar', '-b' ],
-                    'default': 'baz',
-                    'type': str,
-                    'help': 'assistance is futile',
-                    },
-                'default.baz': {
-                    'group': 'default',
-                    'options': [ '--baz', '-b' ],
-                    'type': str,
-                    'action': 'store_true',
-                    'help': 'assistance is futile',
-                    },
-                'default.qux': {
-                    'group': 'default',
-                    'options': [ '--qux', '-q' ],
-                    'type': str,
-                    'default': 'foo',
-                    'help': 'assistance is futile',
-                    },
-                'default.foobar': {
-                    'group': 'default',
-                    'options': [ 'foobar' ],
-                    'type': str,
-                    'nargs': '*',
-                    'help': 'assistance is futile',
-                    },
-                'default.quxbaz': {
-                    'group': 'default',
-                    'options': [ '--foobaz' ],
-                    'type': str,
-                    'dest': 'quxbaz',
-                    },
-                'default.environment_only': {
-                    'group': 'default',
-                    'options': [ '--environment-only' ],
-                    'type': str,
-                    'only': [ 'environment' ],
-                    },
-                }
-
-        self.groups = set([
-                'default',
-                'foo',
-                ])
-
-    def test_add_parameters(self):
-        '''Parameters().add_parameter()'''
-
-        for parameter in self.in_parameters:
-            self.p.add_parameter(**parameter)
-
-        self.assertEqual(self.defaults, self.p.defaults)
+        self.assertEqual(extract_dictionary(PARAMETERS, 'default'), self.p.defaults)
 
         _, self.maxDiff = self.maxDiff, None
-        self.assertEqual(self.parameters, self.p.parameters)
+        self.assertEqual(extract_dictionary(PARAMETERS, 'parameter'), self.p.parameters)
         self.maxDiff = _
 
-        self.assertEqual(self.groups, self.p.groups)
+        self.assertEqual(extract_set(PARAMETERS, 'group'), self.p.groups)
         self.assertFalse(self.p.parsed)
 
 class ParametersAddConfigurationFileTest(unittest.TestCase):
