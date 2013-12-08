@@ -11,6 +11,8 @@ import os
 import sys
 import functools
 import logging
+import copy
+import argparse
 
 logger = logging.getLogger(__name__)
 
@@ -21,11 +23,27 @@ except ImportError:
 
 from crumbs import Parameters
 
-from test_crumbs.test_fixtures import PARAMETERS
+from test_crumbs.test_fixtures import PARAMETERS_ALL
+from test_crumbs.test_fixtures import PARAMETERS_GROUPS
 from test_crumbs.test_fixtures import extract_dictionary
 from test_crumbs.test_fixtures import extract_set
 
-class ParametersCreateTest(unittest.TestCase):
+class BaseParametersTest(unittest.TestCase):
+    def setUp(self):
+        super(BaseParametersTest, self).setUp()
+
+        self.original_parameters = (
+                copy.deepcopy(PARAMETERS_ALL),
+                copy.deepcopy(PARAMETERS_GROUPS),
+                )
+
+        def _():
+            global PARAMETERS_ALL, PARAMETERS_GROUPS
+
+            PARAMETERS_ALL, PARAMETERS_GROUPS = self.original_parameters
+        self.addCleanup(_)
+
+class ParametersCreateTest(BaseParametersTest):
     def test_parameters_create(self):
         '''Parameters()
 
@@ -60,25 +78,80 @@ class ParametersCreateTest(unittest.TestCase):
         self.assertEqual(set([ 'default' ]), p.groups)
         self.assertFalse(p.parsed)
 
-class ParametersAddParametersTest(unittest.TestCase):
+class ParametersAddParametersTest(BaseParametersTest):
+    def test_add_parameters(self):
+        '''Parameters().add_parameter()'''
+
+        self.p = Parameters()
+
+        self._assert_parameters_added(with_groups = True)
+
+    def test_add_duplicate_parameters(self):
+        '''Parameters().add_parameter()—with duplicate'''
+
+        self.p = Parameters()
+
+        self.p.add_parameter(**PARAMETERS_ALL[0]['input'])
+
+        with self.assertRaises(argparse.ArgumentError):
+            self.p.add_parameter(**PARAMETERS_ALL[0]['input'])
+
+    def test_add_parameters_no_group_prefix(self):
+        '''Parameters(group_prefix = False).add_parameters()'''
+
+        self.p = Parameters(group_prefix = False)
+
+        self._assert_parameters_added()
+
+    def test_add_parameters_resolve_conflict_handler(self):
+        '''Parameters(conflict_handler = resolve).add_parameter()'''
+
+        self.p = Parameters(conflict_handler = 'resolve')
+
+        self._assert_parameters_added(with_groups = True)
+
     def test_add_parameters_no_group_prefix_resolve_conflict_handler(self):
         '''Parameters(group_prefix = False, conflict_handler = resolve).add_parameter()'''
 
         self.p = Parameters(group_prefix = False, conflict_handler = 'resolve')
 
-        for parameter in PARAMETERS:
+        self._assert_parameters_added()
+
+    def _add_groups_to_parameters(self, parameters):
+        '''Add the group prefixes to parameters for results checking.'''
+
+        for parameter in parameters.values():
+            if parameter['group'] != 'default':
+                long_option = max(parameter['options'], key = len)
+
+                parameter['options'].remove(long_option)
+                parameter['options'].append(long_option.replace('--', '--' + parameter['group'].replace('_', '-') + '-'))
+
+        return parameters
+
+    def _assert_parameters_added(self, with_groups = False):
+        '''Populate and assert values in PARAMETERS_ALL.'''
+
+        for parameter in PARAMETERS_ALL:
             self.p.add_parameter(**parameter['input'])
 
-        self.assertEqual(extract_dictionary(PARAMETERS, 'default'), self.p.defaults)
+        self.assertEqual(extract_dictionary(PARAMETERS_ALL, 'default'), self.p.defaults)
 
         _, self.maxDiff = self.maxDiff, None
-        self.assertEqual(extract_dictionary(PARAMETERS, 'parameter'), self.p.parameters)
+
+        results = extract_dictionary(PARAMETERS_ALL, 'parameter')
+
+        if with_groups:
+            results = self._add_groups_to_parameters(results)
+
+        self.assertEqual(results, self.p.parameters)
+
         self.maxDiff = _
 
-        self.assertEqual(extract_set(PARAMETERS, 'group'), self.p.groups)
+        self.assertEqual(extract_set(PARAMETERS_ALL, 'group'), self.p.groups)
         self.assertFalse(self.p.parsed)
 
-class ParametersAddConfigurationFileTest(unittest.TestCase):
+class ParametersAddConfigurationFileTest(BaseParametersTest):
     def setUp(self):
         tmp_fh = tempfile.NamedTemporaryFile(mode = 'w')
         tmp_fh.write(
@@ -102,7 +175,7 @@ class ParametersAddConfigurationFileTest(unittest.TestCase):
         self.assertEqual([ self.file_name ], list(self.p.configuration_files.keys()))
         self.assertIsInstance(self.p.configuration_files[self.file_name], SafeConfigParser)
 
-class ParametersParseParametersTest(unittest.TestCase):
+class ParametersParseParametersTest(BaseParametersTest):
     '''Test the calls without actual parsing.
 
     This set of tests does not actually test the parsing of the sources but
@@ -137,8 +210,10 @@ class ParametersParseParametersTest(unittest.TestCase):
 
         sys.argv.remove('--help')
 
-class ParametersGroupingTest(unittest.TestCase):
+class ParametersGroupingTest(BaseParametersTest):
     def setUp(self):
+        super(ParametersGroupingTest, self).setUp()
+
         self.original_argv0 = sys.argv[0]
 
         def _():
@@ -147,59 +222,44 @@ class ParametersGroupingTest(unittest.TestCase):
 
         sys.argv[0] = 'crumbs'
 
+    def _populate_argument_vector(self, value, argument = lambda _: _['input']['options'][0]):
+        for _ in PARAMETERS_GROUPS:
+            sys.argv.extend([ argument(_), value ])
+
+            self.addCleanup(functools.partial(sys.argv.remove, argument(_)))
+            self.addCleanup(functools.partial(sys.argv.remove, value))
+
+            self.p.add_parameter(**_['input'])
+
+    def _assert_parameters(self, value):
+        for _ in PARAMETERS_GROUPS:
+            logger.debug('_: %s', _)
+            self.assertEqual(value, self.p[list(_['parameter'])[0]])
+
     def test_parameters_with_groups(self):
-        p = Parameters(group_prefix = True)
+        self.p = Parameters(group_prefix = True)
 
-        sys.argv.extend([ '--bar-foo', 'with_group' ])
-
-        self.addCleanup(functools.partial(sys.argv.remove, '--bar-foo'))
-        self.addCleanup(functools.partial(sys.argv.remove, 'with_group'))
-
-        p.add_parameter(
-                options = [ '--foo' ],
-                group = 'bar',
+        self._populate_argument_vector('with_group',
+                lambda _: _['input']['options'][0].replace('--', '--' + _['input']['group'].replace('_', '-') + '-')
                 )
 
-        p.parse()
+        self.p.parse()
 
-        self.assertEqual('with_group', p['bar.foo'])
+        self._assert_parameters('with_group')
 
     def test_parameters_without_groups(self):
-        p = Parameters(group_prefix = False)
+        self.p = Parameters(group_prefix = False)
 
-        sys.argv.extend([ '--foo', 'without_group' ])
+        self._populate_argument_vector('without_group')
 
-        self.addCleanup(functools.partial(sys.argv.remove, '--foo'))
-        self.addCleanup(functools.partial(sys.argv.remove, 'without_group'))
+        self.p.parse()
 
-        p.add_parameter(
-                options = [ '--foo' ],
-                group = 'bar',
-                )
+        self._assert_parameters('without_group')
 
-        p.parse()
-
-        self.assertEqual('without_group', p['bar.foo'])
-
-    def test_parameters_with_group_with_underscore(self):
-        p = Parameters(group_prefix = True)
-
-        sys.argv.extend([ '--under-score-group', 'with_underscore' ])
-
-        self.addCleanup(functools.partial(sys.argv.remove, '--under-score-group'))
-        self.addCleanup(functools.partial(sys.argv.remove, 'with_underscore'))
-
-        p.add_parameter(
-                options = [ '--group' ],
-                group = 'under_score',
-                )
-
-        p.parse()
-
-        self.assertEqual('with_underscore', p['under_score.group'])
-
-class ParametersReadTest(unittest.TestCase):
+class ParametersReadTest(BaseParametersTest):
     def setUp(self):
+        super(ParametersReadTest, self).setUp()
+
         self.original_argv0 = sys.argv[0]
 
         def _():

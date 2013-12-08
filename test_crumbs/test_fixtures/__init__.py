@@ -9,7 +9,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-PARAMETERS = []
+PARAMETERS_ALL = []
+PARAMETERS_GROUPS = []
 
 def extract_dictionary(iterable, extraction_key):
     '''Extract the specified key from the provided iterable as a dict.
@@ -76,7 +77,47 @@ def extract_set(iterable, extraction_key):
 
     return result
 
-PARAMETERS.append(
+PARAMETERS_GROUPS.append(
+        {
+            'input': {
+                'group': 'bar',
+                'options': [ '--foo' ],
+                },
+            'default': {
+                'bar.foo': None,
+                },
+            'parameter': {
+                'bar.foo': {
+                    'group': 'bar',
+                    'options': [ '--foo' ],
+                    'type': str,
+                    },
+                },
+            'group': 'bar',
+            },
+        )
+
+PARAMETERS_GROUPS.append(
+        {
+            'input': {
+                'group': 'under_score',
+                'options': [ '--group' ],
+                },
+            'default': {
+                'under_score.group': None,
+                },
+            'parameter': {
+                'under_score.group': {
+                    'group': 'under_score',
+                    'options': [ '--group' ],
+                    'type': str,
+                    },
+                },
+            'group': 'under_score',
+            },
+        )
+
+PARAMETERS_ALL.append(
         {
             'input': {
                 'group': 'foo',
@@ -101,11 +142,11 @@ PARAMETERS.append(
             },
         )
 
-PARAMETERS.append(
+PARAMETERS_ALL.append(
         {
             'input': {
                 'group': 'default',
-                'options': [ '--baz', '-b' ],
+                'options': [ '--baz' ],
                 'action': 'store_true',
                 'help': 'assistance is futile',
                 },
@@ -115,7 +156,7 @@ PARAMETERS.append(
             'parameter': {
                 'default.baz': {
                     'group': 'default',
-                    'options': [ '--baz', '-b' ],
+                    'options': [ '--baz' ],
                     'type': str,
                     'action': 'store_true',
                     'help': 'assistance is futile',
@@ -125,7 +166,7 @@ PARAMETERS.append(
             },
         )
 
-PARAMETERS.append(
+PARAMETERS_ALL.append(
         {
             'input': {
                 'options': [ '--qux', '-q' ],
@@ -148,7 +189,7 @@ PARAMETERS.append(
             },
         )
 
-PARAMETERS.append(
+PARAMETERS_ALL.append(
         {
             'input': {
                 'options': [ 'foobar' ],
@@ -171,7 +212,7 @@ PARAMETERS.append(
             },
         )
 
-PARAMETERS.append(
+PARAMETERS_ALL.append(
         {
             'input': {
                 'options': [ '--foobaz' ],
@@ -192,7 +233,7 @@ PARAMETERS.append(
             },
         )
 
-PARAMETERS.append(
+PARAMETERS_ALL.append(
         {
             'input': {
                 'options': [ '--environment-only' ],
@@ -212,3 +253,5 @@ PARAMETERS.append(
             'group': 'default',
             },
         )
+
+PARAMETERS_ALL.extend(PARAMETERS_GROUPS)
