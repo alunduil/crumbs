@@ -26,6 +26,7 @@ from crumbs import Parameters
 from test_crumbs.test_fixtures import PARAMETERS_ALL
 from test_crumbs.test_fixtures import PARAMETERS_GROUPS
 from test_crumbs.test_fixtures import extract_dictionary
+from test_crumbs.test_fixtures import group_parameters_dictionary
 from test_crumbs.test_fixtures import extract_set
 
 class BaseParametersTest(unittest.TestCase):
@@ -146,6 +147,10 @@ class ParametersAddParametersTest(BaseParametersTest):
             results = self._add_groups_to_parameters(results)
 
         self.assertEqual(results, self.p.parameters)
+
+        results = group_parameters_dictionary(results)
+
+        self.assertEqual(results, self.p.grouped_parameters)
 
         self.maxDiff = _
 

@@ -129,6 +129,8 @@ class Parameters(object):
 
         logger.info('group: %s', group)
 
+        self.grouped_parameters.setdefault(group, {}).setdefault(parameter_name.replace(group + '.', ''), self.parameters[parameter_name])
+
         action_defaults = {
                 'store': kwargs.get('default'),
                 'store_const': kwargs.get('const'),

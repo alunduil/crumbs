@@ -45,6 +45,36 @@ def extract_dictionary(iterable, extraction_key):
 
     return result
 
+def group_parameters_dictionary(dictionary):
+    '''Create a second dictionary level creating an indirect parameter mapping.
+
+    Turns the `parameters` property into a `grouped_parameters` property.
+    Basically, it splits the keys from parameters and groups them by group.
+
+    Parameters
+    ^^^^^^^^^^
+
+    :dictionary: The dictionary containing parameters (keys like group.name).
+
+    '''
+
+    result = { 'default': {} }
+
+    for _, parameter in iter(dictionary.items()):
+        group = parameter['group']
+
+        logger.debug('group: %s', group)
+
+        name = _.replace(group + '.', '')
+
+        logger.debug('name: %s', name)
+
+        result.setdefault(group, {}).setdefault(name, parameter)
+
+        logger.debug('result[%s][%s]: %s', group, name, result[group][name])
+
+    return result
+
 def extract_set(iterable, extraction_key):
     '''Extract the specified key from the provided dictionary as a set.
 
