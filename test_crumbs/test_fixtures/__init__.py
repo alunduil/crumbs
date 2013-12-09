@@ -34,7 +34,7 @@ def extract_dictionary(iterable, extraction_key):
     ^^^^^^^^
 
     >>> extract_dictionary([ { 'a': { 1: 1 } }, { 'a': { 2: 2 } } ], 'a')
-    { 1: 1, 2: 2 }
+    {1: 1, 2: 2}
 
     '''
 
@@ -96,7 +96,7 @@ def extract_set(iterable, extraction_key):
     ^^^^^^^^
 
     >>> extract_set([ { 'a': 1 }, { 'a': 2 }, { 'a': 1 } ], 'a')
-    set([ 1, 2 ])
+    {1, 2}
 
     '''
 
