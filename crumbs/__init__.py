@@ -11,6 +11,7 @@ import copy
 import os
 import sys
 import re
+import warnings
 
 try:
     from configparser import SafeConfigParser
@@ -122,6 +123,7 @@ class Parameters(object):
 
         if self.parsed:
             logger.warn('adding parameter %s after parse', parameter_name)
+            warnings.warn('adding parameter {} after parse'.format(parameter_name), RuntimeWarning)
 
         self.parameters[parameter_name] = copy.copy(kwargs)
         self.parameters[parameter_name]['group'] = group
@@ -188,6 +190,7 @@ class Parameters(object):
             self.configuration_files[file_name].read(file_name)
         else:
             logger.warn('could not read %s', file_name)
+            warnings.warn('could not read {}'.format(file_name), ResourceWarning)
 
     def parse(self, only_known = False):
         '''Parse the sources and prepare them for searching.
@@ -319,6 +322,7 @@ class Parameters(object):
 
         if not self.parsed:
             logger.warn('retrieving values from unparsed Parameters')
+            warnings.warn('retrieving values from unparsed Parameters', RuntimeWarning)
 
         default = self.defaults.get(parameter_name)
 
