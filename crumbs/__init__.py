@@ -47,6 +47,8 @@ class Parameters(object):
         :``group_prefix``: Prefix command line arguments with the group name if
                            this is True; otherwise, ignore groups on command
                            line arguments.  Default: True.
+        :``inotify``:      Use pyinotify to reload parameters when configuration
+                           files are modified.  Default: False.
 
         Any other passed arguments are picked up by wildcards (*args and
         **kwargs).  These are passed directly to an instance of ArgumentParser
