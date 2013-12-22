@@ -13,6 +13,13 @@ import sys
 import re
 import warnings
 
+_pyinotify_loaded = True
+try:
+    import pyinotify
+except ImportError:
+    logger.warn('could not load pyinotify—all inotify behavior ignored')
+    _pyinotify_loaded = False
+
 try:
     from configparser import SafeConfigParser
     from configparser import NoOptionError
@@ -58,8 +65,30 @@ class Parameters(object):
 
         self._group_prefix = kwargs.pop('group_prefix', True)
 
+        self._inotify = kwargs.pop('inotify', False) and _pyinotify_loaded
+
         self._group_parsers = { 'default': argparse.ArgumentParser(*args, **kwargs) }
         self._argument_namespace = argparse.Namespace()
+
+        if self._inotify:
+            self._watch_manager = pyinotify.WatchManager()
+
+            class EventHandler(pyinotify.ProcessEvent):
+                def my_init(self, configuration_files):
+                    self.configuration_files = configuration_files
+
+                def process_IN_MODIFY(self, event):
+                    logger.info('re-reading %s', event.pathname)
+
+                    self.configuration_files[event.pathname].read(event.pathname)
+
+            self._notifier = pyinotify.Notifier(self._watch_manager, EventHandler(configuration_files = self.configuration_files))
+            self._notifier.coalesce_events()
+
+    def __del__(self):
+        if self._inotify:
+            logger.info('stopping inotifier')
+            self._notifier.stop()
 
     def add_parameter(self, **kwargs):
         '''Add the specified components as a parameter.
@@ -184,6 +213,9 @@ class Parameters(object):
         '''
 
         logger.info('adding %s to configuration files', file_name)
+
+        if file_name not in self.configuration_files and self._inotify:
+            self._watch_manager.add_watch(file_name, pyinotify.IN_MODIFY)
 
         if os.access(file_name, os.R_OK):
             self.configuration_files[file_name] = SafeConfigParser()
@@ -310,6 +342,12 @@ class Parameters(object):
 
         '''
 
+        if self._inotify and self._notifier.check_events(timeout = 10):
+            logger.debug('events available: %s', self._notifier.check_events())
+            logger.info('processing inotifications')
+            self._notifier.read_events()
+            self._notifier.process_events()
+
         parameter_name = parameter_name.replace('-', '_')
 
         logger.info('finding value of %s', parameter_name)
@@ -369,4 +407,7 @@ class Parameters(object):
 
         logger.info('argument: %s', value)
 
-        return self.parameters[parameter_name]['type'](value)
+        if value is not None:
+            value = self.parameters[parameter_name]['type'](value)
+
+        return value

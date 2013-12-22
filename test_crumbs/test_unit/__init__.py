@@ -5,14 +5,15 @@
 # crumbs is freely distributable under the terms of an MIT-style license.
 # See COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-import unittest
-import tempfile
-import os
-import sys
+import argparse
+import copy
 import functools
 import logging
-import copy
-import argparse
+import os
+import sys
+import tempfile
+import time
+import unittest
 
 logger = logging.getLogger(__name__)
 
@@ -173,6 +174,8 @@ class ParametersAddConfigurationFileTest(BaseParametersTest):
 
         self.p = Parameters()
 
+        self.p.add_parameter(options = ( '--foo', ))
+
     def test_add_configuration_file(self):
         '''Parameters().add_configuration_file()'''
 
@@ -180,6 +183,29 @@ class ParametersAddConfigurationFileTest(BaseParametersTest):
 
         self.assertEqual([ self.file_name ], list(self.p.configuration_files.keys()))
         self.assertIsInstance(self.p.configuration_files[self.file_name], SafeConfigParser)
+
+    def test_add_configuration_file_with_inotify(self):
+        '''Parameters(inotify = True).add_configuration_file()'''
+
+        self.p = Parameters(inotify = True)
+
+        self.p.add_parameter(options = ( '--foo', ))
+        self.p.add_parameter(options = ( '--bar', ))
+
+        self.p.add_configuration_file(self.file_name)
+
+        self.p.parse()
+
+        self.assertEqual('bar', self.p['default.foo'])
+        self.assertIsNone(self.p['default.bar'])
+
+        with open(self.file_name, 'a') as fh:
+            fh.write('bar = foo')
+
+        time.sleep(1)
+
+        self.assertEqual('bar', self.p['default.foo'])
+        self.assertEqual('foo', self.p['default.bar'])
 
 class ParametersParseParametersTest(BaseParametersTest):
     '''Test the calls without actual parsing.
