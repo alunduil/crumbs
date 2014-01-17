@@ -30,20 +30,22 @@ from test_crumbs.test_fixtures import extract_dictionary
 from test_crumbs.test_fixtures import group_parameters_dictionary
 from test_crumbs.test_fixtures import extract_set
 
+
 class BaseParametersTest(unittest.TestCase):
     def setUp(self):
         super(BaseParametersTest, self).setUp()
 
         self.original_parameters = (
-                copy.deepcopy(PARAMETERS_ALL),
-                copy.deepcopy(PARAMETERS_GROUPS),
-                )
+            copy.deepcopy(PARAMETERS_ALL),
+            copy.deepcopy(PARAMETERS_GROUPS),
+        )
 
         def _():
             global PARAMETERS_ALL, PARAMETERS_GROUPS
 
             PARAMETERS_ALL, PARAMETERS_GROUPS = self.original_parameters
         self.addCleanup(_)
+
 
 class ParametersCreateTest(BaseParametersTest):
     def test_parameters_create(self):
@@ -80,6 +82,7 @@ class ParametersCreateTest(BaseParametersTest):
         self.assertEqual({}, p.configuration_files)
         self.assertEqual(set([ 'default' ]), p.groups)
         self.assertFalse(p.parsed)
+
 
 class ParametersAddParametersTest(BaseParametersTest):
     def test_add_parameters(self):
@@ -158,13 +161,14 @@ class ParametersAddParametersTest(BaseParametersTest):
         self.assertEqual(extract_set(PARAMETERS_ALL, 'group'), self.p.groups)
         self.assertFalse(self.p.parsed)
 
+
 class ParametersAddConfigurationFileTest(BaseParametersTest):
     def setUp(self):
         tmp_fh = tempfile.NamedTemporaryFile(mode = 'w')
         tmp_fh.write(
-                '[default]\n'
-                'foo = bar\n'
-                )
+            '[default]\n'
+            'foo = bar\n'
+        )
 
         tmp_fh.seek(0)
 
@@ -207,6 +211,7 @@ class ParametersAddConfigurationFileTest(BaseParametersTest):
         self.assertEqual('bar', self.p['default.foo'])
         self.assertEqual('foo', self.p['default.bar'])
 
+
 class ParametersParseParametersTest(BaseParametersTest):
     '''Test the calls without actual parsing.
 
@@ -242,6 +247,7 @@ class ParametersParseParametersTest(BaseParametersTest):
 
         sys.argv.remove('--help')
 
+
 class ParametersGroupingTest(BaseParametersTest):
     def setUp(self):
         super(ParametersGroupingTest, self).setUp()
@@ -271,9 +277,10 @@ class ParametersGroupingTest(BaseParametersTest):
     def test_parameters_with_groups(self):
         self.p = Parameters(group_prefix = True)
 
-        self._populate_argument_vector('with_group',
-                lambda _: _['input']['options'][0].replace('--', '--' + _['input']['group'].replace('_', '-') + '-')
-                )
+        self._populate_argument_vector(
+            'with_group',
+            lambda _: _['input']['options'][0].replace('--', '--' + _['input']['group'].replace('_', '-') + '-')
+        )
 
         self.p.parse()
 
@@ -287,6 +294,7 @@ class ParametersGroupingTest(BaseParametersTest):
         self.p.parse()
 
         self._assert_parameters('without_group')
+
 
 class ParametersReadTest(BaseParametersTest):
     def setUp(self):
@@ -334,11 +342,11 @@ class ParametersReadTest(BaseParametersTest):
     def populateConfiguration(self):
         tmp_fh = tempfile.NamedTemporaryFile(mode = 'w')
         tmp_fh.write(
-                '[default]\n'
-                'configuration_only = configuration_only\n'
-                'multi = configuration_multi\n'
-                'type_int = 15\n'
-                )
+            '[default]\n'
+            'configuration_only = configuration_only\n'
+            'multi = configuration_multi\n'
+            'type_int = 15\n'
+        )
 
         tmp_fh.seek(0)
 
@@ -376,10 +384,10 @@ class ParametersReadTest(BaseParametersTest):
         self.populateConfiguration()
 
         self.p.add_parameter(
-                options = [ '--type-int', ],
-                type = int,
-                default = 10,
-                )
+            options = [ '--type-int', ],
+            type = int,
+            default = 10,
+        )
 
         self.p.parse()
 

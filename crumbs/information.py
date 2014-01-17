@@ -5,8 +5,7 @@
 
 NAME = 'crumbs'
 VERSION = '9999'
-DESCRIPTION = \
-        'Generalized all-in-one parameters module.'
+DESCRIPTION = 'Generalized all-in-one parameters module.'
 AUTHOR = 'Alex Brandt'
 AUTHOR_EMAIL = 'alunduil@alunduil.com'
 URL = 'https://github.com/alunduil/crumbs'

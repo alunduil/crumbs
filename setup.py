@@ -8,13 +8,14 @@ import sys
 import traceback
 
 if sys.version_info.major < 3:
-    import ConfigParser
+    import ConfigParser  # flake8: noqa
     configparser_name = 'ConfigParser'
 else:
-    import configparser
+    import configparser  # flake8: noqa
     configparser_name = 'configparser'
 
 original_sections = sys.modules[configparser_name].ConfigParser.sections
+
 
 def monkey_sections(self):
     '''Return a list of sections available; DEFAULT is not included in the list.
@@ -55,31 +56,31 @@ PARAMS['url'] = information.URL
 PARAMS['license'] = information.LICENSE
 
 PARAMS['classifiers'] = [
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Topic :: Software Development :: Libraries',
-        ]
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: MIT License',
+    'Natural Language :: English',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.3',
+    'Programming Language :: Python :: Implementation :: CPython',
+    'Topic :: Software Development :: Libraries',
+]
 
 PARAMS['keywords'] = [
-        'crumbs',
-        'parameters',
-        'configuration',
-        'environment',
-        'arguments',
-        ]
+    'crumbs',
+    'parameters',
+    'configuration',
+    'environment',
+    'arguments',
+]
 
 PARAMS['provides'] = [
-        'crumbs',
-        ]
+    'crumbs',
+]
 
 with open('requirements.txt', 'r') as req_fh:
     PARAMS['install_requires'] = req_fh.readlines()
@@ -90,13 +91,13 @@ with open('test_crumbs/requirements.txt', 'r') as req_fh:
 PARAMS['test_suite'] = 'nose.collector'
 
 PARAMS['packages'] = [
-        'crumbs',
-        ]
+    'crumbs',
+]
 
 PARAMS['data_files'] = [
-        ('share/doc/{P[name]}-{P[version]}'.format(P = PARAMS), [
-            'README.rst',
-            ]),
-        ]
+    ('share/doc/{P[name]}-{P[version]}'.format(P = PARAMS), [
+        'README.rst',
+    ]),
+]
 
 setup(**PARAMS)

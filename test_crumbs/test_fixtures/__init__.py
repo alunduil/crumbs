@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 PARAMETERS_ALL = []
 PARAMETERS_GROUPS = []
 
+
 def extract_dictionary(iterable, extraction_key):
     '''Extract the specified key from the provided iterable as a dict.
 
@@ -45,6 +46,7 @@ def extract_dictionary(iterable, extraction_key):
 
     return result
 
+
 def group_parameters_dictionary(dictionary):
     '''Create a second dictionary level creating an indirect parameter mapping.
 
@@ -74,6 +76,7 @@ def group_parameters_dictionary(dictionary):
         logger.debug('result[%s][%s]: %s', group, name, result[group][name])
 
     return result
+
 
 def extract_set(iterable, extraction_key):
     '''Extract the specified key from the provided dictionary as a set.
@@ -108,180 +111,180 @@ def extract_set(iterable, extraction_key):
     return result
 
 PARAMETERS_GROUPS.append(
-        {
-            'input': {
+    {
+        'input': {
+            'group': 'bar',
+            'options': [ '--foo' ],
+        },
+        'default': {
+            'bar.foo': None,
+        },
+        'parameter': {
+            'bar.foo': {
                 'group': 'bar',
                 'options': [ '--foo' ],
-                },
-            'default': {
-                'bar.foo': None,
-                },
-            'parameter': {
-                'bar.foo': {
-                    'group': 'bar',
-                    'options': [ '--foo' ],
-                    'type': str,
-                    },
-                },
-            'group': 'bar',
+                'type': str,
             },
-        )
+        },
+        'group': 'bar',
+    },
+)
 
 PARAMETERS_GROUPS.append(
-        {
-            'input': {
+    {
+        'input': {
+            'group': 'under_score',
+            'options': [ '--group' ],
+        },
+        'default': {
+            'under_score.group': None,
+        },
+        'parameter': {
+            'under_score.group': {
                 'group': 'under_score',
                 'options': [ '--group' ],
-                },
-            'default': {
-                'under_score.group': None,
-                },
-            'parameter': {
-                'under_score.group': {
-                    'group': 'under_score',
-                    'options': [ '--group' ],
-                    'type': str,
-                    },
-                },
-            'group': 'under_score',
+                'type': str,
             },
-        )
+        },
+        'group': 'under_score',
+    },
+)
 
 PARAMETERS_ALL.append(
-        {
-            'input': {
+    {
+        'input': {
+            'group': 'foo',
+            'options': [ '--bar', '-b' ],
+            'default': 'baz',
+            'type': str,
+            'help': 'assistance is futile',
+        },
+        'default': {
+            'foo.bar': 'baz',
+        },
+        'parameter': {
+            'foo.bar': {
                 'group': 'foo',
                 'options': [ '--bar', '-b' ],
                 'default': 'baz',
                 'type': str,
                 'help': 'assistance is futile',
-                },
-            'default': {
-                'foo.bar': 'baz',
-                },
-            'parameter': {
-                'foo.bar': {
-                    'group': 'foo',
-                    'options': [ '--bar', '-b' ],
-                    'default': 'baz',
-                    'type': str,
-                    'help': 'assistance is futile',
-                    },
-                },
-            'group': 'foo',
             },
-        )
+        },
+        'group': 'foo',
+    },
+)
 
 PARAMETERS_ALL.append(
-        {
-            'input': {
+    {
+        'input': {
+            'group': 'default',
+            'options': [ '--baz' ],
+            'action': 'store_true',
+            'help': 'assistance is futile',
+        },
+        'default': {
+            'default.baz': False,
+        },
+        'parameter': {
+            'default.baz': {
                 'group': 'default',
                 'options': [ '--baz' ],
+                'type': str,
                 'action': 'store_true',
                 'help': 'assistance is futile',
-                },
-            'default': {
-                'default.baz': False,
-                },
-            'parameter': {
-                'default.baz': {
-                    'group': 'default',
-                    'options': [ '--baz' ],
-                    'type': str,
-                    'action': 'store_true',
-                    'help': 'assistance is futile',
-                    },
-                },
-            'group': 'default',
             },
-        )
+        },
+        'group': 'default',
+    },
+)
 
 PARAMETERS_ALL.append(
-        {
-            'input': {
+    {
+        'input': {
+            'options': [ '--qux', '-q' ],
+            'default': 'foo',
+            'help': 'assistance is futile',
+        },
+        'default': {
+            'default.qux': 'foo',
+        },
+        'parameter': {
+            'default.qux': {
+                'group': 'default',
                 'options': [ '--qux', '-q' ],
+                'type': str,
                 'default': 'foo',
                 'help': 'assistance is futile',
-                },
-            'default': {
-                'default.qux': 'foo',
-                },
-            'parameter': {
-                'default.qux': {
-                    'group': 'default',
-                    'options': [ '--qux', '-q' ],
-                    'type': str,
-                    'default': 'foo',
-                    'help': 'assistance is futile',
-                    },
-                },
-            'group': 'default',
             },
-        )
+        },
+        'group': 'default',
+    },
+)
 
 PARAMETERS_ALL.append(
-        {
-            'input': {
+    {
+        'input': {
+            'options': [ 'foobar' ],
+            'nargs': '*',
+            'help': 'assistance is futile',
+        },
+        'default': {
+            'default.foobar': None,
+        },
+        'parameter': {
+            'default.foobar': {
+                'group': 'default',
                 'options': [ 'foobar' ],
+                'type': str,
                 'nargs': '*',
                 'help': 'assistance is futile',
-                },
-            'default': {
-                'default.foobar': None,
-                },
-            'parameter': {
-                'default.foobar': {
-                    'group': 'default',
-                    'options': [ 'foobar' ],
-                    'type': str,
-                    'nargs': '*',
-                    'help': 'assistance is futile',
-                    },
-                },
-            'group': 'default',
             },
-        )
+        },
+        'group': 'default',
+    },
+)
 
 PARAMETERS_ALL.append(
-        {
-            'input': {
+    {
+        'input': {
+            'options': [ '--foobaz' ],
+            'dest': 'quxbaz',
+        },
+        'default': {
+            'default.quxbaz': None,
+        },
+        'parameter': {
+            'default.quxbaz': {
+                'group': 'default',
                 'options': [ '--foobaz' ],
+                'type': str,
                 'dest': 'quxbaz',
-                },
-            'default': {
-                'default.quxbaz': None,
-                },
-            'parameter': {
-                'default.quxbaz': {
-                    'group': 'default',
-                    'options': [ '--foobaz' ],
-                    'type': str,
-                    'dest': 'quxbaz',
-                    },
-                },
-            'group': 'default',
             },
-        )
+        },
+        'group': 'default',
+    },
+)
 
 PARAMETERS_ALL.append(
-        {
-            'input': {
+    {
+        'input': {
+            'options': [ '--environment-only' ],
+            'only': [ 'environment' ],
+        },
+        'default': {
+            'default.environment_only': None,
+        },
+        'parameter': {
+            'default.environment_only': {
+                'group': 'default',
                 'options': [ '--environment-only' ],
+                'type': str,
                 'only': [ 'environment' ],
-                },
-            'default': {
-                'default.environment_only': None,
-                },
-            'parameter': {
-                'default.environment_only': {
-                    'group': 'default',
-                    'options': [ '--environment-only' ],
-                    'type': str,
-                    'only': [ 'environment' ],
-                    },
-                },
-            'group': 'default',
             },
-        )
+        },
+        'group': 'default',
+    },
+)
 
 PARAMETERS_ALL.extend(PARAMETERS_GROUPS)

@@ -31,6 +31,7 @@ except ImportError:
     logger.warn('could not load pyinotify—all inotify behavior ignored')
     _pyinotify_loaded = False
 
+
 class Parameters(object):
     def __init__(self, *args, **kwargs):
         '''Initialize Parameters with the given items.
@@ -165,14 +166,14 @@ class Parameters(object):
         self.grouped_parameters.setdefault(group, {}).setdefault(parameter_name.replace(group + '.', ''), self.parameters[parameter_name])
 
         action_defaults = {
-                'store': kwargs.get('default'),
-                'store_const': kwargs.get('const'),
-                'store_true': False,
-                'store_false': True,
-                'append': [],
-                'append_const': [],
-                'count': 0,
-                }
+            'store': kwargs.get('default'),
+            'store_const': kwargs.get('const'),
+            'store_true': False,
+            'store_false': True,
+            'append': [],
+            'append_const': [],
+            'count': 0,
+        }
 
         self.defaults[parameter_name] = action_defaults[kwargs.get('action', 'store')]
 
