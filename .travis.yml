@@ -5,7 +5,9 @@ python:
 install:
   - "pip install -q -r requirements.txt --use-mirrors"
   - "pip install -q -r test_crumbs/requirements.txt --use-mirrors"
+  - "pip install -q flake8 --use-mirrors"
 script:
   - python setup.py build
   - python setup.py install
+  - flake8
   - nosetests
