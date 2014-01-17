@@ -13,13 +13,6 @@ import sys
 import re
 import warnings
 
-_pyinotify_loaded = True
-try:
-    import pyinotify
-except ImportError:
-    logger.warn('could not load pyinotify—all inotify behavior ignored')
-    _pyinotify_loaded = False
-
 try:
     from configparser import SafeConfigParser
     from configparser import NoOptionError
@@ -30,6 +23,13 @@ except ImportError:
     from ConfigParser import NoSectionError
 
 logger = logging.getLogger(__name__)
+
+_pyinotify_loaded = True
+try:
+    import pyinotify
+except ImportError:
+    logger.warn('could not load pyinotify—all inotify behavior ignored')
+    _pyinotify_loaded = False
 
 class Parameters(object):
     def __init__(self, *args, **kwargs):
