@@ -31,14 +31,14 @@ except ImportError:
     logger.warn('could not load pyinotify—all inotify behavior ignored')
     _pyinotify_loaded = False
 
-#try:
-#    import __builtin__
-#except ImportError:
-#    pass
-#
-#if 'ResourceWarning' not in vars(__builtin__):
-#    class ResourceWarning(Warning):
-#        pass
+try:
+    import builtins
+except ImportError:
+    import __builtin__ as builtins
+
+if 'ResourceWarning' not in vars(builtins):
+    class ResourceWarning(Warning):
+        pass
 
 
 class Parameters(object):

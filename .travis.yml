@@ -5,9 +5,11 @@ python:
 matrix:
   fast_finish: true
 install:
-  - "pip install -q -r requirements.txt --use-mirrors"
-  - "pip install -q -r test_crumbs/requirements.txt --use-mirrors"
+  - "mv setup.cfg{,.bak}"
+  - "pip install -q -r requirements.txt"
+  - "pip install -q -r test_crumbs/requirements.txt"
   - "pip install -q flake8 --use-mirrors"
+  - "mv setup.cfg{.bak,}"
 script:
   - python setup.py build
   - python setup.py install
