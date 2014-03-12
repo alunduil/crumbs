@@ -2,6 +2,8 @@ language: python
 python:
   - "2.7"
   - "3.3"
+matrix:
+  fast_finish: true
 install:
   - "pip install -q -r requirements.txt --use-mirrors"
   - "pip install -q -r test_crumbs/requirements.txt --use-mirrors"
