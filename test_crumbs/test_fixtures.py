@@ -5,286 +5,204 @@
 # crumbs is freely distributable under the terms of an MIT-style license.
 # See COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+import copy
 import logging
 
 logger = logging.getLogger(__name__)
 
-PARAMETERS_ALL = []
-PARAMETERS_GROUPS = []
+
+PARAMETERS = {
+    'valid': {},
+}
 
 
-def extract_dictionary(iterable, extraction_key):
-    '''Extract the specified key from the provided iterable as a dict.
+def add_parameter(parameters, parameter):
+    '''Add the paramter to the parameters dictionary.
 
-    In this module, we create a list of dictionaries that contain components
-    that can be joined into a distinct dictionary.  Look through PARAMETERS for
-    `default` or `parameter` keys in the contained dictionaries.  This function
-    extracts all of the individual keys requested (i.e. `default` or
-    `parameter`) and crafts the merged dictionary from these individual items.
+    Arguments
+    ---------
 
-    Parameters
-    ^^^^^^^^^^
-
-    :iterable:       Iterable to search for the key provided and reconstruct the
-                     desired dictionary.
-    :extraction_key: Key to extract dictionaries that will be reconstructed
-                     into the resulting dictionary.  This key must point at
-                     dict items in the iterable.
-
-    Examples
-    ^^^^^^^^
-
-    >>> extract_dictionary([ { 'a': { 1: 1 } }, { 'a': { 2: 2 } } ], 'a')
-    {1: 1, 2: 2}
+    :parameter:  dictionary with single parameter description (contains `input`,
+                 `default`, `parameter`, `group`)
+    :parameters: dictionary in which to store the parameter
 
     '''
 
-    result = {}
+    logger.debug('parameter[input]: %s', parameter['input'])
+    parameters.setdefault('inputs', []).append(parameter['input'])
 
-    for _ in iterable:
-        result.update(_[extraction_key])
+    logger.debug('parameter[default]: %s', parameter['default'])
+    parameters.setdefault('defaults', {}).update(parameter['default'])
 
-    return result
+    logger.debug('parameter[parameter]: %s', parameter['parameter'])
+    parameters.setdefault('parameters', {}).update(copy.deepcopy(parameter['parameter']))
 
+    logger.debug('parameter[group]: %s', parameter['parameter'])
+    parameters.setdefault('groups', set()).add(parameter['group'])
 
-def group_parameters_dictionary(dictionary):
-    '''Create a second dictionary level creating an indirect parameter mapping.
+    for name in parameter['parameter'].keys():
+        parameter['parameter'][name.split('.', 1)[-1]] = parameter['parameter'].pop(name)
 
-    Turns the `parameters` property into a `grouped_parameters` property.
-    Basically, it splits the keys from parameters and groups them by group.
-
-    Parameters
-    ^^^^^^^^^^
-
-    :dictionary: The dictionary containing parameters (keys like group.name).
-
-    '''
-
-    result = { 'default': {} }
-
-    for _, parameter in iter(dictionary.items()):
-        group = parameter['group']
-
-        logger.debug('group: %s', group)
-
-        name = _.replace(group + '.', '')
-
-        logger.debug('name: %s', name)
-
-        result.setdefault(group, {}).setdefault(name, parameter)
-
-        logger.debug('result[%s][%s]: %s', group, name, result[group][name])
-
-    return result
+    parameters.setdefault('grouped_parameters', {}).setdefault(parameter['group'], {}).update(parameter['parameter'])
 
 
-def extract_set(iterable, extraction_key):
-    '''Extract the specified key from the provided dictionary as a set.
-
-    In this module, we create a list of dictionaries that contain components
-    that can be joined into a distinct set.  Look through PARAMETERS for
-    `group` keys in the contained dictionaries.  This function extracts all of
-    the individual keys requested (i.e. `group`) and crafts the merged set from
-    these individual items.
-
-    Parameters
-    ^^^^^^^^^^
-
-    :iterable:       Iterable to search for the key provided and reconstruct the
-                     desired set.
-    :extraction_key: Key to extract items that will be reconstructed into the
-                     resulting set.
-
-    Examples
-    ^^^^^^^^
-
-    >>> extract_set([ { 'a': 1 }, { 'a': 2 }, { 'a': 1 } ], 'a')
-    {1, 2}
-
-    '''
-
-    result = set()
-
-    for _ in iterable:
-        result.add(_[extraction_key])
-
-    return result
-
-PARAMETERS_GROUPS.append(
-    {
-        'input': {
+add_parameter(PARAMETERS['valid'], {
+    'input': {
+        'group': 'bar',
+        'options': [ '--foo' ],
+    },
+    'default': {
+        'bar.foo': None,
+    },
+    'parameter': {
+        'bar.foo': {
             'group': 'bar',
             'options': [ '--foo' ],
+            'type': str,
         },
-        'default': {
-            'bar.foo': None,
-        },
-        'parameter': {
-            'bar.foo': {
-                'group': 'bar',
-                'options': [ '--foo' ],
-                'type': str,
-            },
-        },
-        'group': 'bar',
     },
-)
+    'group': 'bar',
+})
 
-PARAMETERS_GROUPS.append(
-    {
-        'input': {
+add_parameter(PARAMETERS['valid'], {
+    'input': {
+        'group': 'under_score',
+        'options': [ '--group' ],
+    },
+    'default': {
+        'under_score.group': None,
+    },
+    'parameter': {
+        'under_score.group': {
             'group': 'under_score',
             'options': [ '--group' ],
+            'type': str,
         },
-        'default': {
-            'under_score.group': None,
-        },
-        'parameter': {
-            'under_score.group': {
-                'group': 'under_score',
-                'options': [ '--group' ],
-                'type': str,
-            },
-        },
-        'group': 'under_score',
     },
-)
+    'group': 'under_score',
+})
 
-PARAMETERS_ALL.append(
-    {
-        'input': {
+add_parameter(PARAMETERS['valid'], {
+    'input': {
+        'group': 'foo',
+        'options': [ '--bar', '-b' ],
+        'default': 'baz',
+        'type': str,
+        'help': 'assistance is futile',
+    },
+    'default': {
+        'foo.bar': 'baz',
+    },
+    'parameter': {
+        'foo.bar': {
             'group': 'foo',
             'options': [ '--bar', '-b' ],
             'default': 'baz',
             'type': str,
             'help': 'assistance is futile',
         },
-        'default': {
-            'foo.bar': 'baz',
-        },
-        'parameter': {
-            'foo.bar': {
-                'group': 'foo',
-                'options': [ '--bar', '-b' ],
-                'default': 'baz',
-                'type': str,
-                'help': 'assistance is futile',
-            },
-        },
-        'group': 'foo',
     },
-)
+    'group': 'foo',
+})
 
-PARAMETERS_ALL.append(
-    {
-        'input': {
+add_parameter(PARAMETERS['valid'], {
+    'input': {
+        'group': 'default',
+        'options': [ '--baz' ],
+        'action': 'store_true',
+        'help': 'assistance is futile',
+    },
+    'default': {
+        'default.baz': False,
+    },
+    'parameter': {
+        'default.baz': {
             'group': 'default',
             'options': [ '--baz' ],
+            'type': str,
             'action': 'store_true',
             'help': 'assistance is futile',
         },
-        'default': {
-            'default.baz': False,
-        },
-        'parameter': {
-            'default.baz': {
-                'group': 'default',
-                'options': [ '--baz' ],
-                'type': str,
-                'action': 'store_true',
-                'help': 'assistance is futile',
-            },
-        },
-        'group': 'default',
     },
-)
+    'group': 'default',
+})
 
-PARAMETERS_ALL.append(
-    {
-        'input': {
+add_parameter(PARAMETERS['valid'], {
+    'input': {
+        'options': [ '--qux', '-q' ],
+        'default': 'foo',
+        'help': 'assistance is futile',
+    },
+    'default': {
+        'default.qux': 'foo',
+    },
+    'parameter': {
+        'default.qux': {
+            'group': 'default',
             'options': [ '--qux', '-q' ],
+            'type': str,
             'default': 'foo',
             'help': 'assistance is futile',
         },
-        'default': {
-            'default.qux': 'foo',
-        },
-        'parameter': {
-            'default.qux': {
-                'group': 'default',
-                'options': [ '--qux', '-q' ],
-                'type': str,
-                'default': 'foo',
-                'help': 'assistance is futile',
-            },
-        },
-        'group': 'default',
     },
-)
+    'group': 'default',
+})
 
-PARAMETERS_ALL.append(
-    {
-        'input': {
+add_parameter(PARAMETERS['valid'], {
+    'input': {
+        'options': [ 'foobar' ],
+        'nargs': '*',
+        'help': 'assistance is futile',
+    },
+    'default': {
+        'default.foobar': None,
+    },
+    'parameter': {
+        'default.foobar': {
+            'group': 'default',
             'options': [ 'foobar' ],
+            'type': str,
             'nargs': '*',
             'help': 'assistance is futile',
         },
-        'default': {
-            'default.foobar': None,
-        },
-        'parameter': {
-            'default.foobar': {
-                'group': 'default',
-                'options': [ 'foobar' ],
-                'type': str,
-                'nargs': '*',
-                'help': 'assistance is futile',
-            },
-        },
-        'group': 'default',
     },
-)
+    'group': 'default',
+})
 
-PARAMETERS_ALL.append(
-    {
-        'input': {
+add_parameter(PARAMETERS['valid'], {
+    'input': {
+        'options': [ '--foobaz' ],
+        'dest': 'quxbaz',
+    },
+    'default': {
+        'default.quxbaz': None,
+    },
+    'parameter': {
+        'default.quxbaz': {
+            'group': 'default',
             'options': [ '--foobaz' ],
+            'type': str,
             'dest': 'quxbaz',
         },
-        'default': {
-            'default.quxbaz': None,
-        },
-        'parameter': {
-            'default.quxbaz': {
-                'group': 'default',
-                'options': [ '--foobaz' ],
-                'type': str,
-                'dest': 'quxbaz',
-            },
-        },
-        'group': 'default',
     },
-)
+    'group': 'default',
+})
 
-PARAMETERS_ALL.append(
-    {
-        'input': {
+add_parameter(PARAMETERS['valid'], {
+    'input': {
+        'options': [ '--environment-only' ],
+        'only': [ 'environment' ],
+    },
+    'default': {
+        'default.environment_only': None,
+    },
+    'parameter': {
+        'default.environment_only': {
+            'group': 'default',
             'options': [ '--environment-only' ],
+            'type': str,
             'only': [ 'environment' ],
         },
-        'default': {
-            'default.environment_only': None,
-        },
-        'parameter': {
-            'default.environment_only': {
-                'group': 'default',
-                'options': [ '--environment-only' ],
-                'type': str,
-                'only': [ 'environment' ],
-            },
-        },
-        'group': 'default',
     },
-)
-
-PARAMETERS_ALL.extend(PARAMETERS_GROUPS)
+    'group': 'default',
+})
