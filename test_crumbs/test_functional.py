@@ -94,8 +94,8 @@ class ParametersReadTest(unittest.TestCase):
         os.environ['CRUMBS_ENVIRONMENT_ONLY'] = 'environment_only'
         os.environ['CRUMBS_MULTI'] = 'environment_multi'
 
-        self.addCleanup(functools.partial(os.environ.unsetenv, 'CRUMBS_ENVIRONMENT_ONLY'))
-        self.addCleanup(functools.partial(os.environ.unsetenv, 'CRUMBS_MULTI'))
+        self.addCleanup(functools.partial(os.unsetenv, 'CRUMBS_ENVIRONMENT_ONLY'))
+        self.addCleanup(functools.partial(os.unsetenv, 'CRUMBS_MULTI'))
 
         self.p.add_parameter(options = ( '--environment-only', ), only = ( 'environment', ))
 
