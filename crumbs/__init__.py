@@ -23,6 +23,7 @@ except ImportError:
     from ConfigParser import NoSectionError
 
 logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 _pyinotify_loaded = True
 try:
@@ -99,7 +100,6 @@ class Parameters(object):
 
     def __del__(self):
         if self._inotify:
-            logger.info('stopping inotifier')
             self._notifier.stop()
 
     def add_parameter(self, **kwargs):
