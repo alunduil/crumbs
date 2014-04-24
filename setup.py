@@ -7,12 +7,12 @@
 import sys
 import traceback
 
-if sys.version_info.major < 3:
-    import ConfigParser  # flake8: noqa
-    configparser_name = 'ConfigParser'
-else:
+try:
     import configparser  # flake8: noqa
     configparser_name = 'configparser'
+except ImportError:
+    import ConfigParser  # flake8: noqa
+    configparser_name = 'ConfigParser'
 
 original_sections = sys.modules[configparser_name].ConfigParser.sections
 
