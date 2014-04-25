@@ -10,7 +10,10 @@ import os
 import sys
 import tempfile
 import time
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 try:
     from configparser import SafeConfigParser

@@ -10,7 +10,10 @@ import copy
 import functools
 import logging
 import sys
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 from crumbs import Parameters
 
