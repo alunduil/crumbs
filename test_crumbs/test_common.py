@@ -7,7 +7,11 @@
 
 import copy
 import logging
-import unittest
+
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 from test_crumbs.test_fixtures import PARAMETERS
 

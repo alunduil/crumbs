@@ -23,7 +23,13 @@ except ImportError:
     from ConfigParser import NoSectionError
 
 logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+try:
+    logger.addHandler(logging.NullHandler())
+except:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
+    logger.addHandler(NullHandler())
 
 _pyinotify_loaded = True
 try:
