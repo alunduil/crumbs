@@ -10,6 +10,7 @@ import copy
 import functools
 import logging
 import sys
+
 try:
     import unittest2 as unittest
 except ImportError:
