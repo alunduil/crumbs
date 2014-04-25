@@ -12,7 +12,8 @@ import logging
 import sys
 import unittest
 
-from crumbs import Parameters, _pyinotify_loaded
+from crumbs import Parameters
+from crumbs import _pyinotify_loaded
 
 from test_crumbs.test_common import BaseParametersTest
 
