@@ -27,8 +27,8 @@ try:
     logger.addHandler(logging.NullHandler())
 except:
     class NullHandler(logging.Handler):
-       def emit(self, record):
-           pass
+        def emit(self, record):
+            pass
     logger.addHandler(NullHandler())
 
 _pyinotify_loaded = True
