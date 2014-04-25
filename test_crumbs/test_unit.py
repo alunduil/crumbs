@@ -12,7 +12,7 @@ import logging
 import sys
 import unittest
 
-from crumbs import Parameters
+from crumbs import Parameters, _pyinotify_loaded
 
 from test_crumbs.test_common import BaseParametersTest
 
@@ -35,6 +35,7 @@ class ParametersCreateTest(unittest.TestCase):
 
         self._assert_properties_set()
 
+    @unittest.skipUnless(_pyinotify_loaded, 'inotify module not available')
     def test_parameters_create_inotify_true(self):
         '''Parameters(inotify = True)'''
 

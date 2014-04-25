@@ -17,7 +17,7 @@ try:
 except ImportError:
     from ConfigParser import SafeConfigParser
 
-from crumbs import Parameters
+from crumbs import Parameters, _pyinotify_loaded
 
 from test_crumbs.test_common import BaseParametersTest
 
@@ -59,6 +59,7 @@ class ParametersAddConfigurationFileTest(BaseParametersTest):
 
         self._assert_configuration_readable()
 
+    @unittest.skipUnless(_pyinotify_loaded, 'inotify module not available')
     def test_add_configuration_file_with_inotify(self):
         '''Parameters(inotify = True).add_configuration_file()'''
 
