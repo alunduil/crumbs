@@ -1,17 +1,22 @@
 language: python
 python:
-  - "2.7"
-  - "3.3"
+  - 2.7
+  - 3.3
+env:
+  USE_UNITTEST2=false
 matrix:
   fast_finish: true
+  include:
+    - python: 2.6
+      env: USE_UNITTEST2=true
 install:
-  - "mv setup.cfg{,.bak}"
-  - "pip install -q -r requirements.txt"
-  - "pip install -q -r test_crumbs/requirements.txt"
-  - "pip install -q flake8 --use-mirrors"
-  - "mv setup.cfg{.bak,}"
+  - mv setup.cfg{,.bak}
+  - pip install -q -r requirements.txt
+  - pip install -q -r test_crumbs/requirements.txt
+  - pip install -q flake8
+  - ${USE_UNITTEST2} && pip install -q unittest2 || true
+  - mv setup.cfg{.bak,}
 script:
-  - python setup.py build
-  - python setup.py install
+  - pip install .
   - flake8
   - nosetests
