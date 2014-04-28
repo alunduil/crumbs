@@ -39,6 +39,7 @@ Authors
 =======
 
 * Alex Brandt <alunduil@alunduil.com>
+* Greg Switft <gregswift@gmail.com>
 
 Known Issues
 ============
