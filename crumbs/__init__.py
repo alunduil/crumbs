@@ -113,18 +113,44 @@ class Parameters(object):
     Using ``Parameters``
     --------------------
 
-    Basic ``Parameters`` usage requires three things:
+    Basic ``Parameters`` usage has four stages:
 
-    1. Instantiation
-    2. Addition of parameters
-    3. Parsing
-
-    Which puts ``Parameters`` into a queryable state.
-
+    1. Instantiation (cf. `__init__`__)
     >>> p = Parameters()
+
+    2. Addition of parameters (cf. `add_parameter`__)
     >>> p.add_parameter(options = [ '--foo' ])
+
+    3. Parsing (cf. `parse`__)
     >>> p.parse()
+
+    4. Query (cf. `__getitem__`__)
     >>> p['foo']
+
+        The value sources have the following precedence levels:
+
+        :command line arguments: Values parsed from ``sys.argv``.
+        :configuration files:    Values set in registered ``ini`` files.
+        :environment variables:  Values set in environment variables.
+        :defaults:               Default value (if set for the parameter).
+
+        The first value found by searching these sources is the value that will
+        be returned.
+
+        Examples
+        --------
+
+        Environment variables relate to parameter names in a mostly obviuos way:
+
+        * foo.bar → ARGV0_FOO_BAR
+        * bar → ARGV0_BAR
+
+        .. note::
+            Parameters in the default group do not have their group added to the
+            environment variables' name while those that are in other groups do.
+
+        Of course, in the preceeding examples, ARGV0 is replaced with the name
+        for the invoking application, sys.argv[0].
 
     '''
 
@@ -139,16 +165,16 @@ class Parameters(object):
                            will produce a new long option '--foo-bar');
                            otherwise, leave long options as they are specified.
                            Default: True.
-        :``inotify``:      Use pyinotify to reload parameters when configuration
-                           files are modified.  Default: False.
+        :``inotify``:      Use pyinotify (if present) to re-read configuration
+                           files as they are modified.  Default: False.
 
-        Any other passed arguments are picked up by wildcards (*args and
-        **kwargs).  These are passed directly to an instance of ArgumentParser
-        for initialization.
+        .. note::
+            All other arguments are directly passed to
+            ``argparse.ArgumentParser`` and are not used by ``Parameters``.
 
         '''
 
-        logger.info('initializing Parameters object')
+        logger.info('STARTING: initializing Parameters object')
 
         self.defaults = {}
         self.parameters = {}
@@ -179,37 +205,172 @@ class Parameters(object):
             self._notifier = pyinotify.Notifier(self._watch_manager, EventHandler(configuration_files = self.configuration_files))
             self._notifier.coalesce_events()
 
+        logger.info('STOPPING: initializing Parameters object')
+
     def __del__(self):
+        '''Prepare for destruction.
+
+        Currently, this only attempts to stop the ``pyinotify.Notifier`` that
+        may be watching configuration files.
+
+        '''
+
         if self._inotify:
             self._notifier.stop()
 
-    def add_parameter(self, **kwargs):
-        '''Add the specified components as a parameter.
+    def __getitem__(self, parameter_name):
+        '''Return the value of the requested parameter (by name).
 
-        The components mostly line up with the argparse arguments (outlined
-        below).  There are a couple of extra possible arguments that we utilize
-        and everything else is discarded without being inspected.
+        Given the ``parameter_name``, this method returns the found value for
+        that parameter.  All three sources are searched for values.
+
+        The ``parameter_name`` must be prefixed with the group name and a dot
+        '.' (i.e. group.long_option where group is the group name and
+        long_option is the longest option in the options for the parameter).
+        The group name can be ommitted if the parameter is a member of the
+        default group.  The ``parameter_name`` is insensitive to the difference
+        between hyphens '-' and underscores '_'; thus these characters can be
+        used interchangeably.
 
         Arguments
         ---------
 
-        The arguments are lumped into two groups which are inspected for the
-        listed items.  These are passed to ArgumentParser.add_argument after
-        removing the specific items for Parameters.
+        :``parameter_name``: Name of the parameter whose value to return.
 
-        Parameters.add_parameter Arguments
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Return
+        ------
 
-        :``group``:   Namespace or section (in configuration file terms) for
-                      this parameter.
+        Highest precedent value of the requested parameter.
+
+        '''
+
+        if self._inotify and self._notifier.check_events(timeout = 10):
+            logger.debug('events available: %s', self._notifier.check_events())
+            logger.info('processing inotifications')
+            self._notifier.read_events()
+            self._notifier.process_events()
+
+        parameter_name = parameter_name.replace('-', '_')
+
+        logger.info('finding value of %s', parameter_name)
+
+        if parameter_name not in self.parameters:
+            parameter_name = '.'.join([ 'default', parameter_name ])
+
+            if parameter_name not in self.parameters:
+                raise KeyError(parameter_name.replace('default.', '', 1))
+
+        if not self.parsed:
+            logger.warn('retrieving values from unparsed Parameters')
+            warnings.warn('retrieving values from unparsed Parameters', RuntimeWarning)
+
+        default = self.defaults.get(parameter_name)
+
+        logger.info('default: %s', default)
+
+        value = os.environ.get('_'.join([ sys.argv[0] ] + parameter_name.replace('default.', '', 1).split('.')).upper(), default)
+
+        logger.info('environment: %s', value)
+
+        configuration_value = default
+        for configuration_file_name, configuration_file in self.configuration_files.items():
+            logger.info('searching %s', configuration_file_name)
+
+            try:
+                configuration_value = configuration_file.get(*parameter_name.split('.', 1))
+            except (NoOptionError, NoSectionError):
+                logger.info('%s not found', parameter_name)
+                continue
+
+            logger.info('value: %s', configuration_value)
+
+        logger.debug('configuration_value: %s', configuration_value)
+
+        if configuration_value != default:
+            value = configuration_value
+
+        logger.info('configuration: %s', value)
+
+        argument_name = parameter_name
+
+        if self._group_prefix:
+            argument_name = argument_name.replace('.', '_', 1)
+        else:
+            _, argument_name = argument_name.split('.', 1)
+
+        argument_name = argument_name.replace('default_', '', 1)
+
+        argument_value = getattr(self._argument_namespace, argument_name, default)
+
+        logger.debug('argument_value: %s', argument_value)
+
+        if argument_value != default:
+            value = argument_value
+
+        logger.info('argument: %s', value)
+
+        if value is not None:
+            value = self.parameters[parameter_name]['type'](value)
+
+        return value
+
+    def add_configuration_file(self, file_name):
+        '''Register a file path from which to read parameter values.
+
+        This method can be called multiple times to register multiple files for
+        querying.  Files are expected to be ``ini`` formatted.
+
+        No assumptions should be made about the order that the registered files
+        are read and values defined in multiple files may have unpredictable
+        results.
+
+        Arguments
+        ---------
+
+        :``file_name``: Name of the file to add to the parameter search.
+
+        '''
+
+        logger.info('adding %s to configuration files', file_name)
+
+        if file_name not in self.configuration_files and self._inotify:
+            self._watch_manager.add_watch(file_name, pyinotify.IN_MODIFY)
+
+        if os.access(file_name, os.R_OK):
+            self.configuration_files[file_name] = SafeConfigParser()
+            self.configuration_files[file_name].read(file_name)
+        else:
+            logger.warn('could not read %s', file_name)
+            warnings.warn('could not read {}'.format(file_name), ResourceWarning)
+
+    def add_parameter(self, **kwargs):
+        '''Add the parameter to ``Parameters``.
+
+        Arguments
+        ---------
+
+        The arguments are lumped into two groups:``Parameters.add_parameter``
+        and ``argparse.ArgumentParser.add_argument``.  Parameters that are only
+        used by ``Parameters.add_parameter`` are removed before ``kwargs`` is
+        passed directly to argparse.ArgumentParser.add_argument``.
+
+        ``Parameters.add_parameter`` Arguments
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+        :``group``:   Group (namespace or prefix) for parameter (corresponds to
+                      section name in configuration files).  Default: 'default'.
         :``options``: The list of options to match for this parameter in argv.
+                      Required parameter!
         :``only``:    Iterable containing the components that this parameter
-                      applies to (i.e. environment, configuration, argument).
+                      applies to (i.e. 'environment', 'configuration',
+                      'argument').  Default: ('environment', 'configuration',
+                      'argument').
 
-        ArgumentParser.add_argument Arguments
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ``argparse.ArgumentParser.add_argument`` Arguments
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-        :``name or flags``: Read from kwargs[options].
+        :``name or flags``: Positional argument filled in by options keyword
+                            argument.
         :``action``:        The basic type of action to be taken when this
                             argument is encountered at the command line.
         :``nargs``:         The number of command-line arguments that should be
@@ -283,74 +444,24 @@ class Parameters(object):
 
             self._group_parsers[group].add_argument(*kwargs.pop('options'), **kwargs)
 
-    def add_configuration_file(self, file_name):
-        '''Add a configuration file to be searched for parameters.
-
-        The configuration file name passed will be added to the parameter
-        search space.  The file is expected to be an ini style file as we
-        utilize the built-in configparser module to actually read the values
-        from the file.
-
-        The files are not searched in any particular order and duplicates take
-        the last value found in the last file it was present.
-
-        .. note::
-            Perhaps we should change this so that the ordering is the reverse
-            order that the files will be searched?
-
-        Arguments
-        ---------
-
-        :``file_name``: Name of the file to add to the parameter search.
-
-        '''
-
-        logger.info('adding %s to configuration files', file_name)
-
-        if file_name not in self.configuration_files and self._inotify:
-            self._watch_manager.add_watch(file_name, pyinotify.IN_MODIFY)
-
-        if os.access(file_name, os.R_OK):
-            self.configuration_files[file_name] = SafeConfigParser()
-            self.configuration_files[file_name].read(file_name)
-        else:
-            logger.warn('could not read %s', file_name)
-            warnings.warn('could not read {}'.format(file_name), ResourceWarning)
-
     def parse(self, only_known = False):
-        '''Parse the sources and prepare them for searching.
-
-        This ensures that the sources (environment, configuration(s), and
-        arguments) are in a state that we can begin retrieving items.  If the
-        ``only_known`` is ``True`` then we don't concern ourself with
-        parameters that were specified that we don't know about yet.  This
-        allows us to get parameters that tell us where other parameters might
-        be hiding (i.e. configuration files).
+        '''Ensure all sources are able to be queried.
 
         Arguments
         ---------
 
-        :``only_known``: Parse only the parameters we have record of if this is
-                         set to True; otherwise, parse everything and do full
-                         error handling of parameters
+        :``only_known``: If True, prepare values for parameters that have been
+                         added and do not error or fail when unknown parameters
+                         are encountered.
 
         .. note::
-            Once parse is called (without ``only_known``) it is inadvisable to
-            add any more parameters to the structure.
-
-         This marks the parsed property to true if full parsing has or is
-         occurring.  parsed will be marked according to the following logic::
-            parsed ← ( only_known → parsed )
+            Once parse has been called ``Parameters.parsed`` will be True and
+            it is inadvisable to add more parameters to the ``Parameters``.
 
         .. note::
-            There is nothing special about parsing configuration files or the
-            environment and these lookups happen against the live (when they
-            were created) values contained in these sources.
-
-        If ``only_known`` is ``True``, the ``--help`` or ``-h`` options will be
-        ignored during this parsing so that the parser can be fully loaded in
-        the event that you want to use parameters before you've finished adding
-        all of your required parameters.
+            If ``only_known`` is True, the --help and -h options on the command
+            line (sys.argv) will be ignored during parsing as it is unexpected
+            that these parameters would be desired at this stage of execution.
 
         '''
 
@@ -366,141 +477,3 @@ class Parameters(object):
             self._group_parsers['default'].parse_known_args(args = args, namespace = self._argument_namespace)
         else:
             self._group_parsers['default'].parse_args(namespace = self._argument_namespace)
-
-    def __getitem__(self, parameter_name):
-        '''Retrieve the specified parameter from this instance of Parameters.
-
-        There are a couple of niceties added to this interface that are shown in
-        detail in the examples below.  The niceties include the following:
-
-        * the '-' and '_' separators in parameter names are interchangeable and
-          the user does not need to be concerned about the similarity of foo-bar
-          and foor_bar as a result.  Both of these names if requested will
-          return the same stored value if it exists.
-        * if the key cannot be found as written the group of default will be
-          searched.  This means that if the user passes in the name foo but that
-          name is not present as is, the name default.foo will be tried.  This
-          also means that if a seemingly scoped name (i.e. foo.bar) is passed,
-          we will try the default prefixed name (i.e. defautl.foo.bar).
-
-        Arguments
-        ---------
-
-        :``parameter_name``: Name to retrive the value from the variuos sources
-
-        Returns
-        -------
-
-        Value of the given ``parameter_name`` from the highest priority source.
-
-        Precedence of Sources
-        ---------------------
-
-        The sources have a certain precedence that values may come from (this is
-        most apparent when the same name is defined in multiple sources).  That
-        precedence is the following:
-
-        :argument:      Argument vector or command line arguments
-        :configuration: Configuration files (all of equal precedence) (see
-                        add_configuration_file)
-        :environment:   Environment variables given to every process
-        :default:       Defined default values for the parameters added
-
-        These will be searched in reverse order as the source closest to the top
-        of the list will win and its value will be returned.
-
-        Examples
-        --------
-
-        Names can be prefixed with the argument's group if it had one (i.e.
-        foo.bar for group foo with option bar).  If options for a parameter were
-        specified with a separator (hyphen, '-', or underscore, '_') this
-        separator can be specified as either character with no loss of meaning.
-
-        .. note::
-            The last remark means that the names foo.bar-baz and foo.bar_baz are
-            not unique.
-
-        Environment variables relate to parameter names in a mostly obviuos way:
-
-        * foo.bar → ARGV0_FOO_BAR
-        * bar → ARGV0_BAR
-
-        .. note::
-            Parameters in the default group do not have their group added to the
-            environment variables' name while those that are in other groups do.
-
-        Of course, in the preceeding examples, ARGV0 is replaced with the name
-        for the invoking application, sys.argv[0].
-
-        '''
-
-        if self._inotify and self._notifier.check_events(timeout = 10):
-            logger.debug('events available: %s', self._notifier.check_events())
-            logger.info('processing inotifications')
-            self._notifier.read_events()
-            self._notifier.process_events()
-
-        parameter_name = parameter_name.replace('-', '_')
-
-        logger.info('finding value of %s', parameter_name)
-
-        if parameter_name not in self.parameters:
-            parameter_name = '.'.join([ 'default', parameter_name ])
-
-            if parameter_name not in self.parameters:
-                raise KeyError(parameter_name.replace('default.', '', 1))
-
-        if not self.parsed:
-            logger.warn('retrieving values from unparsed Parameters')
-            warnings.warn('retrieving values from unparsed Parameters', RuntimeWarning)
-
-        default = self.defaults.get(parameter_name)
-
-        logger.info('default: %s', default)
-
-        value = os.environ.get('_'.join([ sys.argv[0] ] + parameter_name.replace('default.', '', 1).split('.')).upper(), default)
-
-        logger.info('environment: %s', value)
-
-        configuration_value = default
-        for configuration_file_name, configuration_file in self.configuration_files.items():
-            logger.info('searching %s', configuration_file_name)
-
-            try:
-                configuration_value = configuration_file.get(*parameter_name.split('.', 1))
-            except (NoOptionError, NoSectionError):
-                logger.info('%s not found', parameter_name)
-                continue
-
-            logger.info('value: %s', configuration_value)
-
-        logger.debug('configuration_value: %s', configuration_value)
-
-        if configuration_value != default:
-            value = configuration_value
-
-        logger.info('configuration: %s', value)
-
-        argument_name = parameter_name
-
-        if self._group_prefix:
-            argument_name = argument_name.replace('.', '_', 1)
-        else:
-            _, argument_name = argument_name.split('.', 1)
-
-        argument_name = argument_name.replace('default_', '', 1)
-
-        argument_value = getattr(self._argument_namespace, argument_name, default)
-
-        logger.debug('argument_value: %s', argument_value)
-
-        if argument_value != default:
-            value = argument_value
-
-        logger.info('argument: %s', value)
-
-        if value is not None:
-            value = self.parameters[parameter_name]['type'](value)
-
-        return value
