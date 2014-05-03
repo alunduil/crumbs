@@ -1,9 +1,23 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2013 by Alex Brandt <alunduil@alunduil.com>
+# Copyright (C) 2014 by Alex Brandt <alunduil@alunduil.com>
 #
 # crumbs is freely distributable under the terms of an MIT-style license.
 # See COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+'''Provides a simple parameter container mechanism.
+
+Along with the core mechanism, `Parameters`_, crumbs also provides helpers that
+make working with parameterization easier (a very small list at this time).
+The following items are provided by crumbs to this end:
+
+:``Parameters``:        Queryable collection of parameters whose values are set
+                        by the user.
+:``information``:       Miscellaneous information about crumbs (i.e. version).
+:``_pyinotify_loaded``: Not technically publically exposed but evaluates as True
+                        if pyinotify is successfully loaded and False if not.
+
+'''
 
 import logging
 import argparse
@@ -29,6 +43,7 @@ except:
     class NullHandler(logging.Handler):
         def emit(self, record):
             pass
+
     logger.addHandler(NullHandler())
 
 _pyinotify_loaded = True
@@ -49,21 +64,81 @@ if 'ResourceWarning' not in vars(builtins):
 
 
 class Parameters(object):
+    '''Queryable collection of parameters whose values are set by the user.
+
+    Using the normal dictionary lookup mechanism (D[]), one can obtain the user
+    set values for particular parameters which have been declared in the program
+    calling ``Parameters``.
+
+    Parameters are added via the ``add_parameter`` method.  Configuration files
+    that should be searched can be added with the ``add_configuration_file``
+    method.
+
+    Before querying for parameters' values, the Parameters object must have
+    been parsed with the ``parse`` method.  Parsing ensures that the command
+    line, configuration files, and environment are read and ready to be queried.
+
+    Methods
+    -------
+
+    :``__getitem__``:            Return a parameter's value.
+    :``__init__``:               Initialize and return a ``Parameters`` object.
+    :``add_configuration_file``: Add a file path to be searched for parameter
+                                 values.
+    :``add_parameter``:          Add a parameter to ``Parameters`` object.
+    :``parse``:                  Prepare ``Parameters`` for queries and ensure
+                                 parameter values can be found.
+
+    Properties
+    ----------
+
+    :``defaults``:            Dictionary mapping parameter name to default
+                              value.  Default: {}
+    :``parameters``:          Dictionary mapping parameter name to parameter
+                              arguments (arguments passed to ``add_parameter``).
+                              Default: {}.
+    :``grouped_parameters``:  Dictionary mapping parameter group to parameter
+                              dictionary (see parameters property).  Default:
+                              { 'default': {} }.
+    :``configuration_files``: Dictionary mapping configuration file path to an
+                              active ``ConfigParser.ConfigParser``.  Default:
+                              {}.
+    :``groups``:              Set of all parameter groups.  Always includes at
+                              least the 'default' group.  Default:
+                              set(['default']).
+    :``parsed``:              True if ``Parameters`` has been parsed with the
+                              ``parse`` method; otherwise, False.  Default:
+                              False.
+
+    Using ``Parameters``
+    --------------------
+
+    Basic ``Parameters`` usage requires three things:
+
+    1. Instantiation
+    2. Addition of parameters
+    3. Parsing
+
+    Which puts ``Parameters`` into a queryable state.
+
+    >>> p = Parameters()
+    >>> p.add_parameter(options = [ '--foo' ])
+    >>> p.parse()
+    >>> p['foo']
+
+    '''
+
     def __init__(self, *args, **kwargs):
-        '''Initialize Parameters with the given items.
-
-        This initializes a blank set of parameters to which parameters and
-        configuration files may be added.
-
-        This object keeps track of multiple configuration files and multiple
-        groupings of parameters.
+        '''Initialize and return a ``Parameters`` object.
 
         Arguments
         ---------
 
-        :``group_prefix``: Prefix command line arguments with the group name if
-                           this is True; otherwise, ignore groups on command
-                           line arguments.  Default: True.
+        :``group_prefix``: If True, prefix command line arguments with the group
+                           name (i.e. group ← 'foo' and long option ← '--bar'
+                           will produce a new long option '--foo-bar');
+                           otherwise, leave long options as they are specified.
+                           Default: True.
         :``inotify``:      Use pyinotify to reload parameters when configuration
                            files are modified.  Default: False.
 
