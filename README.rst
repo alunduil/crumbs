@@ -3,10 +3,11 @@ Description
 
 Generalized all-in-one parameters module.
 
-This package provides a single view of environment variables, configuration files, and command line arguments.
-The consistent interface makes interacting with these, most of the time disparate, resources much simpler.
-It also allows parameters to be set on any of the three sources and the merge happens automatically upon retrieval.
-This way the most expected value is always used.
+This package provides a single view of environment variables, configuration 
+files, and command line arguments.  The consistent interface makes interacting 
+with these, most of the time disparate, resources much simpler.  It also allows
+parameters to be set on any of the three sources and the merge happens 
+automatically upon retrieval.  This way the most expected value is always used.
 
 Installation
 ============
@@ -20,25 +21,29 @@ The latest release available is:
 .. image:: https://badge.fury.io/py/crumbs.png
     :target: http://badge.fury.io/py/crumbs
 
-If you would prefer to clone this package directly from git or assist with development, the URL is https://github.com/alunduil/crumbs and the current status of the build is:
-
-.. image:: https://secure.travis-ci.org/alunduil/crumbs.png?branch=master
-   :target: http://travis-ci.org/alunduil/crumbs
-
-Usage
-=====
+Usaging Crumbs
+==============
 
 Usage of this package is outlined in the module's documentation::
 
     pydoc crumbs
 
-Testing Crumbs
-==============
+Developing Crumbs
+=================
 
-Crumbs is tested continuously by Travis-CI but running the tests is quite simple::
+If you would prefer to clone this package directly from git or assist with 
+development, the URL is https://github.com/alunduil/crumbs.
+
+Crumbs is tested continuously by Travis-CI and running the tests is quite 
+simple::
 
     flake8
     nosetests
+
+The current status of the build is:
+
+.. image:: https://secure.travis-ci.org/alunduil/crumbs.png?branch=master
+   :target: http://travis-ci.org/alunduil/crumbs
 
 Authors
 =======
