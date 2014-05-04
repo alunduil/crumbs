@@ -79,7 +79,7 @@ class Parameters(object):
 
     Parameters are added via the ``add_parameter`` method.  Configuration files
     that should be searched can be added with the ``add_configuration_file``
-    method.  Environment variables are prefixed with an uppoercase program name
+    method.  Environment variables are prefixed with an uppercase program name
     (``sys.argv[0]``) and uppercased with dots '.' and hyphens '-' replaced with
     underscores (i.e. ARGV0_GROUP_LONG_OPTION where group may be ommitted if it
     is 'default').
