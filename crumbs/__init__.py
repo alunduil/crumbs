@@ -5,11 +5,7 @@
 # crumbs is freely distributable under the terms of an MIT-style license.
 # See COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-'''Provides a simple parameter container mechanism.
-
-Along with the core mechanism, `Parameters`_, crumbs also provides helpers that
-make working with parameterization easier (a very small list at this time).
-The following items are provided by crumbs to this end:
+'''Provides an easy to use multi-source parameter container.
 
 :``Parameters``:        Queryable collection of parameters whose values are set
                         by the user.
@@ -67,16 +63,31 @@ class Parameters(object):
     '''Queryable collection of parameters whose values are set by the user.
 
     Using the normal dictionary lookup mechanism (D[]), one can obtain the user
-    set values for particular parameters which have been declared in the program
-    calling ``Parameters``.
+    set values for particular parameters (set in command line arguments,
+    configuration files, or environment variables) which have been added to
+    ``Parameters``.
+
+    The three sources (command line arguments, configuration files, and
+    environment variables) can have values for parameters.  When two or more
+    sources define values for the same parameter, the first source (highest
+    precedence) in the following list will provide the value for that parameter:
+
+    :command line arguments: Values parsed from ``sys.argv``.
+    :configuration files:    Values set in registered ``ini`` files.
+    :environment variables:  Values set in environment variables.
+    :defaults:               Default value (if set for the parameter).
 
     Parameters are added via the ``add_parameter`` method.  Configuration files
     that should be searched can be added with the ``add_configuration_file``
-    method.
+    method.  Environment variables are prefixed with an uppoercase program name
+    (``sys.argv[0]``) and uppercased with dots '.' and hyphens '-' replaced with
+    underscores (i.e. ARGV0_GROUP_LONG_OPTION where group may be ommitted if it
+    is 'default').
 
-    Before querying for parameters' values, the Parameters object must have
+    Before querying for parameters' values, the ``Parameters`` object must have
     been parsed with the ``parse`` method.  Parsing ensures that the command
-    line, configuration files, and environment are read and ready to be queried.
+    line, configuration files, and environment variables are read and ready to
+    be queried.
 
     Methods
     -------
@@ -110,47 +121,22 @@ class Parameters(object):
                               ``parse`` method; otherwise, False.  Default:
                               False.
 
-    Using ``Parameters``
-    --------------------
+    Example
+    -------
 
     Basic ``Parameters`` usage has four stages:
 
-    1. Instantiation (cf. `__init__`__)
+    1. Instantiate ``Parameters`` (cf. `__init__`__)
     >>> p = Parameters()
 
-    2. Addition of parameters (cf. `add_parameter`__)
+    2. Add parameters (cf. `add_parameter`__)
     >>> p.add_parameter(options = [ '--foo' ])
 
-    3. Parsing (cf. `parse`__)
+    3. Parse (cf. `parse`__)
     >>> p.parse()
 
     4. Query (cf. `__getitem__`__)
     >>> p['foo']
-
-        The value sources have the following precedence levels:
-
-        :command line arguments: Values parsed from ``sys.argv``.
-        :configuration files:    Values set in registered ``ini`` files.
-        :environment variables:  Values set in environment variables.
-        :defaults:               Default value (if set for the parameter).
-
-        The first value found by searching these sources is the value that will
-        be returned.
-
-        Examples
-        --------
-
-        Environment variables relate to parameter names in a mostly obviuos way:
-
-        * foo.bar → ARGV0_FOO_BAR
-        * bar → ARGV0_BAR
-
-        .. note::
-            Parameters in the default group do not have their group added to the
-            environment variables' name while those that are in other groups do.
-
-        Of course, in the preceeding examples, ARGV0 is replaced with the name
-        for the invoking application, sys.argv[0].
 
     '''
 
@@ -162,7 +148,7 @@ class Parameters(object):
 
         :``group_prefix``: If True, prefix command line arguments with the group
                            name (i.e. group ← 'foo' and long option ← '--bar'
-                           will produce a new long option '--foo-bar');
+                           will produce a replacement long option '--foo-bar');
                            otherwise, leave long options as they are specified.
                            Default: True.
         :``inotify``:      Use pyinotify (if present) to re-read configuration
@@ -208,10 +194,9 @@ class Parameters(object):
         logger.info('STOPPING: initializing Parameters object')
 
     def __del__(self):
-        '''Prepare for destruction.
+        '''Prepare for garbage collection.
 
-        Currently, this only attempts to stop the ``pyinotify.Notifier`` that
-        may be watching configuration files.
+        Attempt to stop the ``pyinotify.Notifier`` if inotify is in use.
 
         '''
 
@@ -222,25 +207,27 @@ class Parameters(object):
         '''Return the value of the requested parameter (by name).
 
         Given the ``parameter_name``, this method returns the found value for
-        that parameter.  All three sources are searched for values.
+        that parameter.  All three sources are searched for values.  The
+        expected value is returned from the hight precedence source containing
+        a value.
 
         The ``parameter_name`` must be prefixed with the group name and a dot
         '.' (i.e. group.long_option where group is the group name and
         long_option is the longest option in the options for the parameter).
         The group name can be ommitted if the parameter is a member of the
-        default group.  The ``parameter_name`` is insensitive to the difference
-        between hyphens '-' and underscores '_'; thus these characters can be
-        used interchangeably.
+        'default' group.  The ``parameter_name`` is insensitive to the
+        difference between hyphens '-' and underscores '_'; thus these
+        characters can be used interchangeably.
 
         Arguments
         ---------
 
-        :``parameter_name``: Name of the parameter whose value to return.
+        :``parameter_name``: Name of the parameter whose value is returned.
 
         Return
         ------
 
-        Highest precedent value of the requested parameter.
+        Highest precedent value found for the requested parameter.
 
         '''
 
@@ -354,13 +341,17 @@ class Parameters(object):
         used by ``Parameters.add_parameter`` are removed before ``kwargs`` is
         passed directly to argparse.ArgumentParser.add_argument``.
 
+        .. note::
+            Once ``parse`` has been called ``Parameters.parsed`` will be True
+            and it is inadvisable to add more parameters to the ``Parameters``.
+
         ``Parameters.add_parameter`` Arguments
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         :``group``:   Group (namespace or prefix) for parameter (corresponds to
                       section name in configuration files).  Default: 'default'.
-        :``options``: The list of options to match for this parameter in argv.
-                      Required parameter!
+        :``options``: REQUIRED.  The list of options to match for this
+                      parameter in argv.
         :``only``:    Iterable containing the components that this parameter
                       applies to (i.e. 'environment', 'configuration',
                       'argument').  Default: ('environment', 'configuration',
@@ -445,7 +436,7 @@ class Parameters(object):
             self._group_parsers[group].add_argument(*kwargs.pop('options'), **kwargs)
 
     def parse(self, only_known = False):
-        '''Ensure all sources are able to be queried.
+        '''Ensure all sources are ready to be queried.
 
         Arguments
         ---------
@@ -455,13 +446,14 @@ class Parameters(object):
                          are encountered.
 
         .. note::
-            Once parse has been called ``Parameters.parsed`` will be True and
-            it is inadvisable to add more parameters to the ``Parameters``.
+            Once ``parse`` has been called ``Parameters.parsed`` will be True
+            and it is inadvisable to add more parameters to the ``Parameters``.
 
         .. note::
-            If ``only_known`` is True, the --help and -h options on the command
-            line (sys.argv) will be ignored during parsing as it is unexpected
-            that these parameters would be desired at this stage of execution.
+            If ``only_known`` is True, the ``--help`` and ``-h`` options on the
+            command line (``sys.argv``) will be ignored during parsing as it is
+            unexpected that these parameters would be desired at this stage of
+            execution.
 
         '''
 
