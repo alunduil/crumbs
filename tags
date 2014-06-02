@@ -1,0 +1,119 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+AUTHOR	crumbs/information.py	/^AUTHOR = 'Alex Brandt'$/;"	v
+AUTHOR_EMAIL	crumbs/information.py	/^AUTHOR_EMAIL = 'alunduil@alunduil.com'$/;"	v
+BaseParametersTest	test_crumbs/test_common.py	/^class BaseParametersTest(unittest.TestCase):$/;"	c
+COPY_YEAR	crumbs/information.py	/^COPY_YEAR = '2014'$/;"	v
+ContextualZipFile	ez_setup.py	/^    class ContextualZipFile(zipfile.ZipFile):$/;"	c	function:get_zip_class
+DEFAULT_URL	ez_setup.py	/^DEFAULT_URL = "https:\/\/pypi.python.org\/packages\/source\/s\/setuptools\/"$/;"	v
+DEFAULT_VERSION	ez_setup.py	/^DEFAULT_VERSION = "3.4.5"$/;"	v
+DESCRIPTION	crumbs/information.py	/^DESCRIPTION = 'Generalized all-in-one parameters module.'$/;"	v
+EventHandler	crumbs/__init__.py	/^            class EventHandler(pyinotify.ProcessEvent):$/;"	c	function:Parameters.__init__
+LICENSE	crumbs/information.py	/^LICENSE = 'MIT'$/;"	v
+NAME	crumbs/information.py	/^NAME = 'crumbs'$/;"	v
+NullHandler	crumbs/__init__.py	/^    class NullHandler(logging.Handler):$/;"	c
+PARAMETERS	test_crumbs/test_fixtures.py	/^PARAMETERS = {$/;"	v
+PARAMS	setup.py	/^PARAMS = {}$/;"	v
+Parameters	crumbs/__init__.py	/^class Parameters(object):$/;"	c
+ParametersAddConfigurationFileTest	test_crumbs/test_functional.py	/^class ParametersAddConfigurationFileTest(BaseParametersTest):$/;"	c
+ParametersAddParametersTest	test_crumbs/test_unit.py	/^class ParametersAddParametersTest(BaseParametersTest):$/;"	c
+ParametersCreateTest	test_crumbs/test_unit.py	/^class ParametersCreateTest(unittest.TestCase):$/;"	c
+ParametersParseTest	test_crumbs/test_unit.py	/^class ParametersParseTest(unittest.TestCase):$/;"	c
+ParametersReadTest	test_crumbs/test_functional.py	/^class ParametersReadTest(unittest.TestCase):$/;"	c
+ResourceWarning	crumbs/__init__.py	/^    class ResourceWarning(Warning):$/;"	c
+URL	crumbs/information.py	/^URL = 'https:\/\/github.com\/alunduil\/crumbs'$/;"	v
+USER_SITE	ez_setup.py	/^    USER_SITE = None$/;"	v
+VERSION	crumbs/information.py	/^VERSION = '9999'$/;"	v
+_	test_crumbs/test_functional.py	/^        def _():$/;"	f	function:ParametersReadTest.setUp
+__del__	crumbs/__init__.py	/^    def __del__(self):$/;"	m	class:Parameters	file:
+__enter__	ez_setup.py	/^        def __enter__(self):$/;"	m	class:get_zip_class.ContextualZipFile	file:
+__exit__	ez_setup.py	/^        def __exit__(self, type, value, traceback):$/;"	m	class:get_zip_class.ContextualZipFile	file:
+__getitem__	crumbs/__init__.py	/^    def __getitem__(self, parameter_name):$/;"	m	class:Parameters	file:
+__init__	crumbs/__init__.py	/^    def __init__(self, *args, **kwargs):$/;"	m	class:Parameters
+__init__.py	crumbs/__init__.py	1;"	F
+__init__.py	test_crumbs/__init__.py	1;"	F
+_add_group_to_long_options	test_crumbs/test_unit.py	/^            def _add_group_to_long_options(parameters):$/;"	f	function:ParametersAddParametersTest._assert_parameters_add
+_assert_configuration_readable	test_crumbs/test_functional.py	/^    def _assert_configuration_readable(self):$/;"	m	class:ParametersAddConfigurationFileTest
+_assert_parameters_add	test_crumbs/test_unit.py	/^    def _assert_parameters_add(self, parameters, group_prefix = True):$/;"	m	class:ParametersAddParametersTest
+_assert_properties_set	test_crumbs/test_unit.py	/^    def _assert_properties_set(self):$/;"	m	class:ParametersCreateTest
+_build_egg	ez_setup.py	/^def _build_egg(egg, archive_filename, to_dir):$/;"	f
+_build_install_args	ez_setup.py	/^def _build_install_args(options):$/;"	f
+_clean_check	ez_setup.py	/^def _clean_check(cmd, target):$/;"	f
+_do_download	ez_setup.py	/^def _do_download(version, download_base, to_dir, download_delay):$/;"	f
+_install	ez_setup.py	/^def _install(archive_filename, install_args=()):$/;"	f
+_parse_args	ez_setup.py	/^def _parse_args():$/;"	f
+_pyinotify_loaded	crumbs/__init__.py	/^    _pyinotify_loaded = False$/;"	v
+_pyinotify_loaded	crumbs/__init__.py	/^_pyinotify_loaded = True$/;"	v
+_python_cmd	ez_setup.py	/^def _python_cmd(*args):$/;"	f
+add_configuration_file	crumbs/__init__.py	/^    def add_configuration_file(self, file_name):$/;"	m	class:Parameters
+add_parameter	crumbs/__init__.py	/^    def add_parameter(self, **kwargs):$/;"	m	class:Parameters
+add_parameter	test_crumbs/test_fixtures.py	/^def add_parameter(parameters, parameter):$/;"	f
+archive_context	ez_setup.py	/^def archive_context(filename):$/;"	f
+configparser_name	setup.py	/^    configparser_name = 'ConfigParser'$/;"	v
+configparser_name	setup.py	/^    configparser_name = 'configparser'$/;"	v
+download_file_curl	ez_setup.py	/^def download_file_curl(url, target):$/;"	f
+download_file_insecure	ez_setup.py	/^def download_file_insecure(url, target):$/;"	f
+download_file_powershell	ez_setup.py	/^def download_file_powershell(url, target):$/;"	f
+download_file_wget	ez_setup.py	/^def download_file_wget(url, target):$/;"	f
+download_setuptools	ez_setup.py	/^def download_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,$/;"	f
+emit	crumbs/__init__.py	/^        def emit(self, record):$/;"	m	class:NullHandler
+ez_setup.py	ez_setup.py	1;"	F
+get_best_downloader	ez_setup.py	/^def get_best_downloader():$/;"	f
+get_zip_class	ez_setup.py	/^def get_zip_class():$/;"	f
+has_curl	ez_setup.py	/^def has_curl():$/;"	f
+has_powershell	ez_setup.py	/^def has_powershell():$/;"	f
+has_wget	ez_setup.py	/^def has_wget():$/;"	f
+information.py	crumbs/information.py	1;"	F
+logger	crumbs/__init__.py	/^logger = logging.getLogger(__name__)$/;"	v
+logger	test_crumbs/test_common.py	/^logger = logging.getLogger(__name__)$/;"	v
+logger	test_crumbs/test_fixtures.py	/^logger = logging.getLogger(__name__)$/;"	v
+logger	test_crumbs/test_unit.py	/^logger = logging.getLogger(__name__)$/;"	v
+main	ez_setup.py	/^def main():$/;"	f
+monkey_sections	setup.py	/^def monkey_sections(self):$/;"	f
+my_init	crumbs/__init__.py	/^                def my_init(self, configuration_files):$/;"	m	class:Parameters.__init__.EventHandler
+original_sections	setup.py	/^original_sections = sys.modules[configparser_name].ConfigParser.sections$/;"	v
+parse	crumbs/__init__.py	/^    def parse(self, only_known = False):$/;"	m	class:Parameters
+populateArgumentVector	test_crumbs/test_functional.py	/^    def populateArgumentVector(self):$/;"	m	class:ParametersReadTest
+populateConfiguration	test_crumbs/test_functional.py	/^    def populateConfiguration(self):$/;"	m	class:ParametersReadTest
+populateEnvironment	test_crumbs/test_functional.py	/^    def populateEnvironment(self):$/;"	m	class:ParametersReadTest
+populateMulti	test_crumbs/test_functional.py	/^    def populateMulti(self, group = False):$/;"	m	class:ParametersReadTest
+populateTypes	test_crumbs/test_functional.py	/^    def populateTypes(self):$/;"	m	class:ParametersReadTest
+process_IN_MODIFY	crumbs/__init__.py	/^                def process_IN_MODIFY(self, event):$/;"	m	class:Parameters.__init__.EventHandler
+setUp	test_crumbs/test_common.py	/^    def setUp(self):$/;"	m	class:BaseParametersTest
+setUp	test_crumbs/test_functional.py	/^    def setUp(self):$/;"	m	class:ParametersAddConfigurationFileTest
+setUp	test_crumbs/test_functional.py	/^    def setUp(self):$/;"	m	class:ParametersReadTest
+setUp	test_crumbs/test_unit.py	/^    def setUp(self):$/;"	m	class:ParametersParseTest
+setup.py	setup.py	1;"	F
+test_add_configuration_file	test_crumbs/test_functional.py	/^    def test_add_configuration_file(self):$/;"	m	class:ParametersAddConfigurationFileTest
+test_add_configuration_file_with_inotify	test_crumbs/test_functional.py	/^    def test_add_configuration_file_with_inotify(self):$/;"	m	class:ParametersAddConfigurationFileTest
+test_add_duplicate_parameters	test_crumbs/test_unit.py	/^    def test_add_duplicate_parameters(self):$/;"	m	class:ParametersAddParametersTest
+test_add_duplicate_parameters_resolve_conflict_handler	test_crumbs/test_unit.py	/^    def test_add_duplicate_parameters_resolve_conflict_handler(self):$/;"	m	class:ParametersAddParametersTest
+test_add_parameters_with_group_prefix	test_crumbs/test_unit.py	/^    def test_add_parameters_with_group_prefix(self):$/;"	m	class:ParametersAddParametersTest
+test_add_parameters_with_group_prefix_resolve_conflict_handler	test_crumbs/test_unit.py	/^    def test_add_parameters_with_group_prefix_resolve_conflict_handler(self):$/;"	m	class:ParametersAddParametersTest
+test_add_parameters_without_group_prefix	test_crumbs/test_unit.py	/^    def test_add_parameters_without_group_prefix(self):$/;"	m	class:ParametersAddParametersTest
+test_add_parameters_without_group_prefix_resolve_conflict_handler	test_crumbs/test_unit.py	/^    def test_add_parameters_without_group_prefix_resolve_conflict_handler(self):$/;"	m	class:ParametersAddParametersTest
+test_common.py	test_crumbs/test_common.py	1;"	F
+test_fixtures.py	test_crumbs/test_fixtures.py	1;"	F
+test_functional.py	test_crumbs/test_functional.py	1;"	F
+test_parameters_create_inotify_true	test_crumbs/test_unit.py	/^    def test_parameters_create_inotify_true(self):$/;"	m	class:ParametersCreateTest
+test_parameters_create_no_paramters	test_crumbs/test_unit.py	/^    def test_parameters_create_no_paramters(self):$/;"	m	class:ParametersCreateTest
+test_parse	test_crumbs/test_unit.py	/^    def test_parse(self):$/;"	m	class:ParametersParseTest
+test_parse_only_known	test_crumbs/test_unit.py	/^    def test_parse_only_known(self):$/;"	m	class:ParametersParseTest
+test_parse_only_known_with_help	test_crumbs/test_unit.py	/^    def test_parse_only_known_with_help(self):$/;"	m	class:ParametersParseTest
+test_parse_with_help	test_crumbs/test_unit.py	/^    def test_parse_with_help(self):$/;"	m	class:ParametersParseTest
+test_read_argument	test_crumbs/test_functional.py	/^    def test_read_argument(self):$/;"	m	class:ParametersReadTest
+test_read_configuration	test_crumbs/test_functional.py	/^    def test_read_configuration(self):$/;"	m	class:ParametersReadTest
+test_read_configuration_argument	test_crumbs/test_functional.py	/^    def test_read_configuration_argument(self):$/;"	m	class:ParametersReadTest
+test_read_environment	test_crumbs/test_functional.py	/^    def test_read_environment(self):$/;"	m	class:ParametersReadTest
+test_read_environment_argument	test_crumbs/test_functional.py	/^    def test_read_environment_argument(self):$/;"	m	class:ParametersReadTest
+test_read_environment_configuration	test_crumbs/test_functional.py	/^    def test_read_environment_configuration(self):$/;"	m	class:ParametersReadTest
+test_read_environment_configuration_argument	test_crumbs/test_functional.py	/^    def test_read_environment_configuration_argument(self):$/;"	m	class:ParametersReadTest
+test_read_implicit_default_group	test_crumbs/test_functional.py	/^    def test_read_implicit_default_group(self):$/;"	m	class:ParametersReadTest
+test_read_types	test_crumbs/test_functional.py	/^    def test_read_types(self):$/;"	m	class:ParametersReadTest
+test_read_underscores_or_hyphens	test_crumbs/test_functional.py	/^    def test_read_underscores_or_hyphens(self):$/;"	m	class:ParametersReadTest
+test_unit.py	test_crumbs/test_unit.py	1;"	F
+use_setuptools	ez_setup.py	/^def use_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,$/;"	f

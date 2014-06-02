@@ -438,22 +438,25 @@ class Parameters(object):
     def parse(self, only_known = False):
         '''Ensure all sources are ready to be queried.
 
+        Parses ``sys.argv`` with the contained ``argparse.ArgumentParser`` and
+        sets ``parsed`` to True if ``only_known`` is False.  Once ``parsed`` is
+        set to True, it is inadvisable to add more parameters (cf.
+        ``add_parameter``_).  Also, if ``parsed`` is not set to True, retrieving
+        items (cf. ``__getitem__``_) will result in a warning that values are
+        being retrieved from an uparsed Parameters.
+
         Arguments
         ---------
 
-        :``only_known``: If True, prepare values for parameters that have been
-                         added and do not error or fail when unknown parameters
+        :``only_known``: If True, do not error or fail when unknown parameters
                          are encountered.
 
-        .. note::
-            Once ``parse`` has been called ``Parameters.parsed`` will be True
-            and it is inadvisable to add more parameters to the ``Parameters``.
-
-        .. note::
-            If ``only_known`` is True, the ``--help`` and ``-h`` options on the
-            command line (``sys.argv``) will be ignored during parsing as it is
-            unexpected that these parameters would be desired at this stage of
-            execution.
+                         .. note::
+                             If ``only_known`` is True, the ``--help`` and
+                             ``-h`` options on the command line (``sys.argv``)
+                             will be ignored during parsing as it is unexpected
+                             that these parameters' default behavior would be
+                             desired at this stage of execution.
 
         '''
 
