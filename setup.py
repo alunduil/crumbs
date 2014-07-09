@@ -35,7 +35,7 @@ sys.modules[configparser_name].ConfigParser.sections = monkey_sections
 # -----------------------------------------------------------------------------
 
 from ez_setup import use_setuptools
-use_setuptools(version = '5.3')
+use_setuptools(version = '2.2')
 
 from setuptools import setup
 
