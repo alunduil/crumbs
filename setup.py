@@ -3,6 +3,7 @@
 # crumbs is freely distributable under the terms of an MIT-style license.
 # See COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+import pip
 
 from setuptools import setup
 
@@ -50,12 +51,20 @@ PARAMS['provides'] = [
     'crumbs',
 ]
 
-with open('requirements.txt', 'r') as req_fh:
-    PARAMS['install_requires'] = req_fh.readlines()
+PARAMS['install_requires'] = [
+    'setuptools',
+    'pip',
+]
 
-with open('test_crumbs/requirements.txt', 'r') as req_fh:
-    PARAMS['tests_require'] = req_fh.readlines()
+PARAMS['requires'] = [ str(_.req) for _ in pip.req.parse_requirements('requirements.txt') ]
 
+PARAMS['extras_require'] = {
+    'inotify': [
+        'pyinotify',
+    ],
+}
+
+PARAMS['tests_require'] = [ str(_.req) for _ in pip.req.parse_requirements('test_poolmanagerapi/requirements.txt') ]
 PARAMS['test_suite'] = 'nose.collector'
 
 PARAMS['packages'] = [
