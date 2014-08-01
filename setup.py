@@ -64,7 +64,7 @@ PARAMS['extras_require'] = {
     ],
 }
 
-PARAMS['tests_require'] = [ str(_.req) for _ in pip.req.parse_requirements('test_poolmanagerapi/requirements.txt') ]
+PARAMS['tests_require'] = [ str(_.req) for _ in pip.req.parse_requirements('test_crumbs/requirements.txt') ]
 PARAMS['test_suite'] = 'nose.collector'
 
 PARAMS['packages'] = [
