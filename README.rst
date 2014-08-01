@@ -9,7 +9,7 @@ dictionary-like interface makes interacting with these, most of the time
 disparate, resources much simpler.  It also allows parameters' values to be set
 in any of the three sources and selects an appropriate value when a parameter's
 value is specified in multiple sources.  This way the most expected value,
-according to the normal prcedence---command line arguments then configuration 
+according to the normal prcedence—command line arguments then configuration
 files then environment variables, is always returned.
 
 Installation

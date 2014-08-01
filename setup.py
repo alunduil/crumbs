@@ -3,9 +3,8 @@
 # crumbs is freely distributable under the terms of an MIT-style license.
 # See COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-import pip
-
 from setuptools import setup
+from codecs import open
 
 from crumbs import information
 
@@ -15,12 +14,12 @@ PARAMS['name'] = information.NAME
 PARAMS['version'] = information.VERSION
 PARAMS['description'] = information.DESCRIPTION
 
-with open('README.rst', 'r') as fh:
+with open('README.rst', 'r', encoding = 'utf-8') as fh:
     PARAMS['long_description'] = fh.read()
 
+PARAMS['url'] = information.URL
 PARAMS['author'] = information.AUTHOR
 PARAMS['author_email'] = information.AUTHOR_EMAIL
-PARAMS['url'] = information.URL
 PARAMS['license'] = information.LICENSE
 
 PARAMS['classifiers'] = [
@@ -47,16 +46,11 @@ PARAMS['keywords'] = [
     'arguments',
 ]
 
-PARAMS['provides'] = [
+PARAMS['packages'] = [
     'crumbs',
 ]
 
-PARAMS['install_requires'] = [
-    'setuptools',
-    'pip',
-]
-
-PARAMS['requires'] = [ str(_.req) for _ in pip.req.parse_requirements('requirements.txt') ]
+PARAMS['install_requires'] = []
 
 PARAMS['extras_require'] = {
     'inotify': [
@@ -64,11 +58,11 @@ PARAMS['extras_require'] = {
     ],
 }
 
-PARAMS['tests_require'] = [ str(_.req) for _ in pip.req.parse_requirements('test_crumbs/requirements.txt') ]
 PARAMS['test_suite'] = 'nose.collector'
-
-PARAMS['packages'] = [
-    'crumbs',
+PARAMS['tests_require'] = [
+    'coverage',
+    'mock',
+    'nose',
 ]
 
 PARAMS['data_files'] = [
