@@ -3,39 +3,6 @@
 # crumbs is freely distributable under the terms of an MIT-style license.
 # See COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-# -----------------------------------------------------------------------------
-import sys
-import traceback
-
-try:
-    import configparser  # flake8: noqa
-    configparser_name = 'configparser'
-except ImportError:
-    import ConfigParser  # flake8: noqa
-    configparser_name = 'ConfigParser'
-
-original_sections = sys.modules[configparser_name].ConfigParser.sections
-
-
-def monkey_sections(self):
-    '''Return a list of sections available; DEFAULT is not included in the list.
-
-    Monkey patched to exclude the nosetests section as well.
-
-    '''
-
-    _ = original_sections(self)
-
-    if any([ 'distutils/dist.py' in frame[0] for frame in traceback.extract_stack() ]) and _.count('nosetests'):
-        _.remove('nosetests')
-
-    return _
-
-sys.modules[configparser_name].ConfigParser.sections = monkey_sections
-# -----------------------------------------------------------------------------
-
-from ez_setup import use_setuptools
-use_setuptools(version = '2.2')
 
 from setuptools import setup
 
