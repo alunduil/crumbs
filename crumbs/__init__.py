@@ -200,7 +200,7 @@ class Parameters(object):
 
         '''
 
-        if self._inotify:
+        if self._inotify and self._notifier is not None:
             self._notifier.stop()
 
     def __getitem__(self, parameter_name):
