@@ -56,6 +56,7 @@ add_parameter(PARAMETERS['valid'], {
     },
     'parameter': {
         'bar.foo': {
+            'environment_prefix': 'NOSETESTS',
             'group': 'bar',
             'options': [ '--foo' ],
             'type': str,
@@ -74,6 +75,7 @@ add_parameter(PARAMETERS['valid'], {
     },
     'parameter': {
         'under_score.group': {
+            'environment_prefix': 'NOSETESTS',
             'group': 'under_score',
             'options': [ '--group' ],
             'type': str,
@@ -95,6 +97,7 @@ add_parameter(PARAMETERS['valid'], {
     },
     'parameter': {
         'foo.bar': {
+            'environment_prefix': 'NOSETESTS',
             'group': 'foo',
             'options': [ '--bar', '-b' ],
             'default': 'baz',
@@ -117,6 +120,7 @@ add_parameter(PARAMETERS['valid'], {
     },
     'parameter': {
         'default.baz': {
+            'environment_prefix': 'NOSETESTS',
             'group': 'default',
             'options': [ '--baz' ],
             'type': str,
@@ -138,6 +142,7 @@ add_parameter(PARAMETERS['valid'], {
     },
     'parameter': {
         'default.qux': {
+            'environment_prefix': 'NOSETESTS',
             'group': 'default',
             'options': [ '--qux', '-q' ],
             'type': str,
@@ -159,6 +164,7 @@ add_parameter(PARAMETERS['valid'], {
     },
     'parameter': {
         'default.foobar': {
+            'environment_prefix': 'NOSETESTS',
             'group': 'default',
             'options': [ 'foobar' ],
             'type': str,
@@ -179,6 +185,7 @@ add_parameter(PARAMETERS['valid'], {
     },
     'parameter': {
         'default.quxbaz': {
+            'environment_prefix': 'NOSETESTS',
             'group': 'default',
             'options': [ '--foobaz' ],
             'type': str,
@@ -198,8 +205,30 @@ add_parameter(PARAMETERS['valid'], {
     },
     'parameter': {
         'default.environment_only': {
+            'environment_prefix': 'NOSETESTS',
             'group': 'default',
             'options': [ '--environment-only' ],
+            'type': str,
+            'only': [ 'environment' ],
+        },
+    },
+    'group': 'default',
+})
+
+add_parameter(PARAMETERS['valid'], {
+    'input': {
+        'options': [ '--prefixed-environment' ],
+        'only': [ 'environment' ],
+        'environment_prefix': 'crumbs',
+    },
+    'default': {
+        'default.prefixed_environment': None,
+    },
+    'parameter': {
+        'default.prefixed_environment': {
+            'environment_prefix': 'CRUMBS',
+            'group': 'default',
+            'options': [ '--prefixed-environment' ],
             'type': str,
             'only': [ 'environment' ],
         },

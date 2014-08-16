@@ -255,7 +255,16 @@ class Parameters(object):
 
         logger.info('default: %s', default)
 
-        value = os.environ.get('_'.join([ sys.argv[0] ] + parameter_name.replace('default.', '', 1).split('.')).upper(), default)
+        logger.debug('self.paramters[%s][environment_prefix]: %s', parameter_name, self.parameters[parameter_name]['environment_prefix'])
+
+        _ = '_'.join(parameter_name.replace('default.', '', 1).split('.')).upper()
+
+        if self.parameters[parameter_name]['environment_prefix'] is not None:
+            _ = self.parameters[parameter_name]['environment_prefix'] + '_' + _
+
+        logger.debug('environment variable: %s', _)
+
+        value = os.environ.get(_, default)
 
         logger.info('environment: %s', value)
 
@@ -348,14 +357,18 @@ class Parameters(object):
         ``Parameters.add_parameter`` Arguments
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-        :``group``:   Group (namespace or prefix) for parameter (corresponds to
-                      section name in configuration files).  Default: 'default'.
-        :``options``: REQUIRED.  The list of options to match for this
-                      parameter in argv.
-        :``only``:    Iterable containing the components that this parameter
-                      applies to (i.e. 'environment', 'configuration',
-                      'argument').  Default: ('environment', 'configuration',
-                      'argument').
+        :``environment_prefix``: Prefix to add when searching the environment
+                                 for this parameter.  Default:
+                                 os.path.basename(sys.argv[0]).
+        :``group``:              Group (namespace or prefix) for parameter
+                                 (corresponds to section name in configuration
+                                 files).  Default: 'default'.
+        :``options``:            REQUIRED.  The list of options to match for
+                                 this parameter in argv.
+        :``only``:               Iterable containing the components that this
+                                 parameter applies to (i.e. 'environment',
+                                 'configuration', 'argument').  Default:
+                                 ('environment', 'configuration', 'argument').
 
         ``argparse.ArgumentParser.add_argument`` Arguments
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -402,6 +415,10 @@ class Parameters(object):
         self.parameters[parameter_name] = copy.copy(kwargs)
         self.parameters[parameter_name]['group'] = group
         self.parameters[parameter_name]['type'] = kwargs.get('type', str)
+        self.parameters[parameter_name]['environment_prefix'] = kwargs.pop('environment_prefix', os.path.basename(sys.argv[0]))
+
+        if self.parameters[parameter_name]['environment_prefix'] is not None:
+            self.parameters[parameter_name]['environment_prefix'] = self.parameters[parameter_name]['environment_prefix'].upper().replace('-', '_')
 
         logger.info('group: %s', group)
 

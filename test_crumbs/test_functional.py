@@ -171,6 +171,32 @@ class ParametersReadTest(unittest.TestCase):
         self.assertIsInstance(self.p['type_int'], int)
         self.assertEqual(15, self.p['type_int'])
 
+    def test_read_custom_environment_prefix(self):
+        '''Parameters()[key]—environment_prefix=custom'''
+
+        os.environ['CUSTOM_CUSTOM_ENVIRONMENT'] = 'custom_environment'
+
+        self.addCleanup(functools.partial(os.unsetenv, 'CUSTOM_CUSTOM_ENVIRONMENT'))
+
+        self.p.add_parameter(options = ( '--custom-environment', ), only = ( 'environment', ), environment_prefix = 'custom')
+
+        self.p.parse()
+
+        self.assertEqual('custom_environment', self.p['custom_environment'])
+
+    def test_read_empty_environment_prefix(self):
+        '''Parameters()[key]—environment_prefix=None'''
+
+        os.environ['CUSTOM_ENVIRONMENT'] = 'custom_environment'
+
+        self.addCleanup(functools.partial(os.unsetenv, 'CUSTOM_ENVIRONMENT'))
+
+        self.p.add_parameter(options = ( '--custom-environment', ), only = ( 'environment', ), environment_prefix = None)
+
+        self.p.parse()
+
+        self.assertEqual('custom_environment', self.p['custom_environment'])
+
     def test_read_environment(self):
         '''Parameters()[key]—environment'''
 
