@@ -197,6 +197,21 @@ class ParametersReadTest(unittest.TestCase):
 
         self.assertEqual('custom_environment', self.p['custom_environment'])
 
+    def test_read_environment_with_expansion(self):
+        '''Parameters()[key]—with expansion'''
+
+        os.environ['FOO'] = 'foo'
+        self.addCleanup(functools.partial(os.unsetenv, 'FOO'))
+
+        os.environ['EXPAND'] = '${FOO}'
+        self.addCleanup(functools.partial(os.unsetenv, 'EXPAND'))
+
+        self.p.add_parameter(options = ( '--expand', ), only = ( 'environment', ), environment_prefix = None)
+
+        self.p.parse()
+
+        self.assertEqual('foo', self.p['expand'])
+
     def test_read_environment(self):
         '''Parameters()[key]—environment'''
 

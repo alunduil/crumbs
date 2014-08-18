@@ -265,6 +265,10 @@ class Parameters(object):
         logger.debug('environment variable: %s', _)
 
         value = os.environ.get(_, default)
+        try:
+            value = os.path.expandvars(value)
+        except TypeError:
+            pass
 
         logger.info('environment: %s', value)
 
