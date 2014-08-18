@@ -1,18 +1,14 @@
 language: python
 python:
+  - 2.6
   - 2.7
   - 3.3
-env:
-  USE_UNITTEST2=false
 matrix:
   fast_finish: true
-  include:
-    - python: 2.6
-      env: USE_UNITTEST2=true
 install:
   - mv setup.cfg{,.bak}
   - pip install -q flake8
-  - ${USE_UNITTEST2} && pip install -q unittest2 || true
+  - [[ ${TRAVIS_PYTHON_VERSION} == 2.6 ]] && pip install -q unittest2 || true
   - mv setup.cfg{.bak,}
 script:
   - pip install .
