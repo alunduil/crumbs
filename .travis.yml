@@ -6,11 +6,11 @@ python:
 matrix:
   fast_finish: true
 install:
-  - mv setup.cfg{,.bak}
-  - pip install -q flake8
-  - [[ ${TRAVIS_PYTHON_VERSION} == 2.6 ]] && pip install -q unittest2 || true
-  - mv setup.cfg{.bak,}
+  - "mv setup.cfg{,.bak}"
+  - "pip install -q flake8"
+  - "[[ ${TRAVIS_PYTHON_VERSION} == 2.6 ]] && pip install -q unittest2 || true"
+  - "mv setup.cfg{.bak,}"
 script:
-  - pip install .
-  - flake8
-  - nosetests
+  - "pip install ."
+  - "flake8"
+  - "nosetests"
