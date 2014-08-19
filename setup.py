@@ -3,6 +3,8 @@
 # crumbs is freely distributable under the terms of an MIT-style license.
 # See COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+import os
+
 from setuptools import setup
 from codecs import open
 
