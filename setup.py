@@ -6,21 +6,22 @@
 from setuptools import setup
 from codecs import open
 
-from crumbs import information
+with open(os.path.join('crumbs', 'information.py'), 'r', encoding = 'utf-8') as fh:
+    exec(fh.read(), globals(), locals())
 
 PARAMS = {}
 
-PARAMS['name'] = information.NAME
-PARAMS['version'] = information.VERSION
-PARAMS['description'] = information.DESCRIPTION
+PARAMS['name'] = NAME  # flake8: noqa — provided by exec
+PARAMS['version'] = VERSION  # flake8: noqa — provided by exec
+PARAMS['description'] = DESCRIPTION  # flake8: noqa — provided by exec
 
 with open('README.rst', 'r', encoding = 'utf-8') as fh:
     PARAMS['long_description'] = fh.read()
 
-PARAMS['url'] = information.URL
-PARAMS['author'] = information.AUTHOR
-PARAMS['author_email'] = information.AUTHOR_EMAIL
-PARAMS['license'] = information.LICENSE
+PARAMS['url'] = URL  # flake8: noqa — provided by exec
+PARAMS['author'] = AUTHOR  # flake8: noqa — provided by exec
+PARAMS['author_email'] = AUTHOR_EMAIL  # flake8: noqa — provided by exec
+PARAMS['license'] = LICENSE  # flake8: noqa — provided by exec
 
 PARAMS['classifiers'] = [
     'Development Status :: 5 - Production/Stable',
