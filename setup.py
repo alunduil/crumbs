@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+#
 # Copyright (C) 2014 by Alex Brandt <alunduil@alunduil.com>
 #
 # crumbs is freely distributable under the terms of an MIT-style license.
