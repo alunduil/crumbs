@@ -33,6 +33,7 @@ except ImportError:
     from ConfigParser import NoSectionError
 
 logger = logging.getLogger(__name__)
+logger.propagate = False
 try:
     logger.addHandler(logging.NullHandler())
 except:
