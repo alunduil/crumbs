@@ -7,8 +7,8 @@
 
 import os
 
-from setuptools import setup
 from codecs import open
+from setuptools import setup
 
 with open(os.path.join('crumbs', 'information.py'), 'r', encoding = 'utf-8') as fh:
     exec(fh.read(), globals(), locals())
