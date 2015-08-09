@@ -1,17 +1,16 @@
-.. crumbs documentation master file, created by
-   sphinx-quickstart on Mon Apr 20 10:17:35 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. title:: crumbs
 
-Welcome to crumbs' documentation!
-=================================================
+crumbs
+======
 
-Contents:
+Generalized all-in-one parameters.  Get configuration through a single interface
+from configuration files, environment variables, and command line arguments.
 
 .. toctree::
-   :maxdepth: 2
+   :titlesonly:
 
-
+   getting_started
+   parameters
 
 Indices and tables
 ==================
@@ -19,4 +18,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
