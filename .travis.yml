@@ -3,14 +3,16 @@ python:
   - 2.6
   - 2.7
   - 3.3
+  - 3.4
 matrix:
   fast_finish: true
+sudo: false
 install:
-  - "mv setup.cfg{,.bak}"
-  - "pip install -q flake8"
+  - "pip install -qU --compile pip"
+  - "pip install -qU --compile coverage flake8 sphinx_rtd_theme"
   - "[[ ${TRAVIS_PYTHON_VERSION} == 2.6 ]] && pip install -q unittest2 || true"
-  - "mv setup.cfg{.bak,}"
 script:
-  - "pip install ."
+  - "pip install -qU --compile ."
+  - "SPHINXOPTS='-n -W' make -eC docs html"
   - "flake8"
   - "nosetests"
