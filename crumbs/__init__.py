@@ -90,8 +90,7 @@ class Parameters(object):
     line, configuration files, and environment variables are read and ready to
     be queried.
 
-    Methods
-    -------
+    **Methods**
 
     :``__getitem__``:            Return a parameter's value.
     :``__init__``:               Initialize and return a ``Parameters`` object.
@@ -101,8 +100,7 @@ class Parameters(object):
     :``parse``:                  Prepare ``Parameters`` for queries and ensure
                                  parameter values can be found.
 
-    Properties
-    ----------
+    **Properties**
 
     :``defaults``:            Dictionary mapping parameter name to default
                               value.  Default: {}
@@ -122,30 +120,32 @@ class Parameters(object):
                               ``parse`` method; otherwise, False.  Default:
                               False.
 
-    Example
-    -------
+    **Example**
 
     Basic ``Parameters`` usage has four stages:
 
-    1. Instantiate ``Parameters`` (cf. `__init__`__)
-    >>> p = Parameters()
+    1. Instantiate ``Parameters`` (cf. ``__init__``)::
 
-    2. Add parameters (cf. `add_parameter`__)
-    >>> p.add_parameter(options = [ '--foo' ])
+           p = Parameters()
 
-    3. Parse (cf. `parse`__)
-    >>> p.parse()
+    2. Add parameters (cf. ``add_parameter``)::
 
-    4. Query (cf. `__getitem__`__)
-    >>> p['foo']
+           p.add_parameter(options = [ '--foo' ])
+
+    3. Parse (cf. ``parse``)::
+
+           p.parse()
+
+    4. Query (cf. ``__getitem__``)::
+
+           p['foo']
 
     '''
 
     def __init__(self, *args, **kwargs):
         '''Initialize and return a ``Parameters`` object.
 
-        Arguments
-        ---------
+        **Arguments**
 
         :``group_prefix``: If True, prefix command line arguments with the group
                            name (i.e. group ← 'foo' and long option ← '--bar'
@@ -220,13 +220,11 @@ class Parameters(object):
         difference between hyphens '-' and underscores '_'; thus these
         characters can be used interchangeably.
 
-        Arguments
-        ---------
+        **Arguments**
 
         :``parameter_name``: Name of the parameter whose value is returned.
 
-        Return
-        ------
+        **Return**
 
         Highest precedent value found for the requested parameter.
 
@@ -325,8 +323,7 @@ class Parameters(object):
         are read and values defined in multiple files may have unpredictable
         results.
 
-        Arguments
-        ---------
+        **Arguments**
 
         :``file_name``: Name of the file to add to the parameter search.
 
@@ -347,8 +344,7 @@ class Parameters(object):
     def add_parameter(self, **kwargs):
         '''Add the parameter to ``Parameters``.
 
-        Arguments
-        ---------
+        **Arguments**
 
         The arguments are lumped into two groups:``Parameters.add_parameter``
         and ``argparse.ArgumentParser.add_argument``.  Parameters that are only
@@ -359,8 +355,7 @@ class Parameters(object):
             Once ``parse`` has been called ``Parameters.parsed`` will be True
             and it is inadvisable to add more parameters to the ``Parameters``.
 
-        ``Parameters.add_parameter`` Arguments
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        *``Parameters.add_parameter`` Arguments*
 
         :``environment_prefix``: Prefix to add when searching the environment
                                  for this parameter.  Default:
@@ -375,8 +370,7 @@ class Parameters(object):
                                  'configuration', 'argument').  Default:
                                  ('environment', 'configuration', 'argument').
 
-        ``argparse.ArgumentParser.add_argument`` Arguments
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        *``argparse.ArgumentParser.add_argument`` Arguments*
 
         :``name or flags``: Positional argument filled in by options keyword
                             argument.
@@ -463,12 +457,11 @@ class Parameters(object):
         Parses ``sys.argv`` with the contained ``argparse.ArgumentParser`` and
         sets ``parsed`` to True if ``only_known`` is False.  Once ``parsed`` is
         set to True, it is inadvisable to add more parameters (cf.
-        ``add_parameter``_).  Also, if ``parsed`` is not set to True, retrieving
-        items (cf. ``__getitem__``_) will result in a warning that values are
+        ``add_parameter``).  Also, if ``parsed`` is not set to True, retrieving
+        items (cf. ``__getitem__``) will result in a warning that values are
         being retrieved from an uparsed Parameters.
 
-        Arguments
-        ---------
+        **Arguments**
 
         :``only_known``: If True, do not error or fail when unknown parameters
                          are encountered.
