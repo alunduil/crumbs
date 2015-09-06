@@ -15,12 +15,13 @@
 
 '''
 
-import logging
 import argparse
 import copy
+import inspect
+import logging
 import os
-import sys
 import re
+import sys
 import warnings
 
 try:
@@ -248,6 +249,15 @@ class Parameters(object):
 
         if not self.parsed:
             logger.warn('retrieving values from unparsed Parameters')
+
+            caller_frame = inspect.stack()[1]
+
+            caller_module = inspect.getmodule(caller_frame[0])
+            caller_function = caller_frame[3]
+            caller_line = caller_frame[2]
+
+            logger.warn('called from %s.%s:%s', caller_module, caller_function, caller_line)
+
             warnings.warn('retrieving values from unparsed Parameters', RuntimeWarning)
 
         default = self.defaults.get(parameter_name)
