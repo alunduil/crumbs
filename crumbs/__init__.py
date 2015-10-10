@@ -210,7 +210,7 @@ class Parameters(object):
 
         Given the ``parameter_name``, this method returns the found value for
         that parameter.  All three sources are searched for values.  The
-        expected value is returned from the hight precedence source containing
+        expected value is returned from the highest precedence source containing
         a value.
 
         The ``parameter_name`` must be prefixed with the group name and a dot
