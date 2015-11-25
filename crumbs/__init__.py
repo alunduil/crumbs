@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014 by Alex Brandt <alunduil@alunduil.com>
+# Copyright (C) 2015 by Alex Brandt <alunduil@alunduil.com>
 #
 # crumbs is freely distributable under the terms of an MIT-style license.
 # See COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -93,13 +93,15 @@ class Parameters(object):
 
     **Methods**
 
-    :``__getitem__``:            Return a parameter's value.
-    :``__init__``:               Initialize and return a ``Parameters`` object.
-    :``add_configuration_file``: Add a file path to be searched for parameter
-                                 values.
-    :``add_parameter``:          Add a parameter to ``Parameters`` object.
-    :``parse``:                  Prepare ``Parameters`` for queries and ensure
-                                 parameter values can be found.
+    :``__getitem__``:              Return a parameter's value.
+    :``__init__``:                 Initialize and return a ``Parameters``
+                                   object.
+    :``add_configuration_file``:   Add a file path to be searched for parameter
+                                   values.
+    :``add_parameter``:            Add a parameter to ``Parameters`` object.
+    :``parse``:                    Prepare ``Parameters`` for queries and ensure
+                                   parameter values can be found.
+    :``read_configuration_files``: Read all configuration files' values.
 
     **Properties**
 
@@ -497,3 +499,22 @@ class Parameters(object):
             self._group_parsers['default'].parse_known_args(args = args, namespace = self._argument_namespace)
         else:
             self._group_parsers['default'].parse_args(namespace = self._argument_namespace)
+
+    def read_configuration_files(self):
+        '''Explicitly read the configuration files.
+
+        Reads all configuration files in this Parameters object.  Even if
+        inotify is watching or a read has already occurred.
+
+        .. note::
+
+           The order that the configuration files are read is not guaranteed.
+
+        '''
+
+        for file_name, configuration_parser in self.configuration_files.items():
+            if os.access(file_name, os.R_OK):
+                configuration_parser.read(file_name)
+            else:
+                logger.warn('could not read %s', file_name)
+                warnings.warn('could not read {}'.format(file_name), ResourceWarning)

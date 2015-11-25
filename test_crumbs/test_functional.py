@@ -64,6 +64,21 @@ class ParametersAddConfigurationFileTest(BaseParametersTest):
 
         self._assert_configuration_readable()
 
+    def test_add_configuration_file_with_explicit_read(self):
+        '''Parameters().add_configuration_file()—re-read'''
+
+        self.p = Parameters()
+
+        self._assert_configuration_readable()
+
+        with open(self.file_name, 'a') as fh:
+            fh.write('bar = foo')
+
+        self.p.read_configuration_files()
+
+        self.assertEqual('bar', self.p['default.foo'])
+        self.assertEqual('foo', self.p['default.bar'])
+
     @unittest.skipUnless(_pyinotify_loaded, 'inotify module not available')
     def test_add_configuration_file_with_inotify(self):
         '''Parameters(inotify = True).add_configuration_file()'''
