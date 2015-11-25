@@ -1,3 +1,4 @@
+include nose.cfg
 recursive-include test_crumbs *.py
 graft docs
 prune docs/_build

@@ -52,7 +52,7 @@ Authors
 =======
 
 * Alex Brandt <alunduil@alunduil.com>
-* Greg Switft <gregswift@gmail.com>
+* Greg Swift <gregswift@gmail.com>
 
 Known Issues
 ============
