@@ -1,3 +1,8 @@
+include LICENSE
+include Makefile
+include mypy.ini
+include pylintrc
+include README.rst
 include nose.cfg
 recursive-include test_crumbs *.py
 graft docs
