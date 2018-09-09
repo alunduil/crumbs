@@ -1,0 +1,9 @@
+black==18.6b4
+coveralls==1.5.0
+isort==4.3.4
+mypy==0.620
+pylint==2.1.1
+pytest==3.7.3
+pytest-cov==2.6.0
+pytest-runner==4.2
+vulture==0.29
