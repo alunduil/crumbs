@@ -1,19 +1,27 @@
 language: python
 python:
-  - 2.6
-  - 2.7
-  - 3.3
-  - 3.4
-  - 3.5
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.6-dev"
+  - "3.7"
+  - "3.7-dev"
+  - "nightly"
 matrix:
+  allow_failures:
+    - python "nightly"
   fast_finish: true
-sudo: false
+
 install:
   - "pip install -qU --compile pip"
-  - "pip install -qU --compile coverage flake8 sphinx_rtd_theme"
-  - "[[ ${TRAVIS_PYTHON_VERSION} == 2.6 ]] && pip install -q unittest2 || true"
+  - "pip install -r requirements.txt"
+
 script:
-  - "pip install -qU --compile ."
-  - "SPHINXOPTS='-n -W' make -eC docs html"
-  - "flake8"
-  - "nosetests"
+  - "python setup.py sdist"
+  - "pip install ."
+  - "make check"
+  - "SPHINXOPTS='-n -W' make docs"
+
+after_success:
+  - coveralls
