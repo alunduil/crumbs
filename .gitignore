@@ -1,4 +1,5 @@
 .direnv/
+.mypy_cache/
 
 *.py[cod]
 

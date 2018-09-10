@@ -59,12 +59,6 @@ PARAMS['packages'] = [
 
 PARAMS['install_requires'] = []
 
-PARAMS['extras_require'] = {
-    'inotify': [
-        'pyinotify',
-    ],
-}
-
 PARAMS['test_suite'] = 'nose.collector'
 PARAMS['tests_require'] = [
     'coverage',
