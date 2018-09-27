@@ -27,7 +27,7 @@ import warnings
 from configparser import SafeConfigParser
 from configparser import NoOptionError
 from configparser import NoSectionError
-from typing import Any, Dict, Optional, List, Sequence, TypeVar, Callable, Union
+from typing import Any, Dict, Optional, List, Sequence, Callable, Union
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.propagate = False
@@ -49,9 +49,6 @@ if "ResourceWarning" not in vars(builtins):
         """Back-ported ResourceWarning."""
 
         pass
-
-
-Value = TypeVar("Value")
 
 
 class Parameters:  # pylint: disable=too-many-instance-attributes
@@ -184,24 +181,22 @@ class Parameters:  # pylint: disable=too-many-instance-attributes
 
         self._group_prefix = group_prefix
 
-        self._group_parsers: Dict[
-            str, Union[argparse.ArgumentParser, argparse._ArgumentGroup]  # pylint: disable=protected-access
-        ] = {
-            "default": argparse.ArgumentParser(
-                prog=prog,
-                usage=usage,
-                description=description,
-                epilog=epilog,
-                parents=parents,
-                formatter_class=formatter_class,
-                prefix_chars=prefix_chars,
-                fromfile_prefix_chars=fromfile_prefix_chars,
-                argument_default=argument_default,
-                conflict_handler=conflict_handler,
-                add_help=add_help,
-                allow_abbrev=allow_abbrev,
-            )
-        }
+        self._default_parser = argparse.ArgumentParser(
+            prog=prog,
+            usage=usage,
+            description=description,
+            epilog=epilog,
+            parents=parents,
+            formatter_class=formatter_class,
+            prefix_chars=prefix_chars,
+            fromfile_prefix_chars=fromfile_prefix_chars,
+            argument_default=argument_default,
+            conflict_handler=conflict_handler,
+            add_help=add_help,
+            allow_abbrev=allow_abbrev,
+        )
+
+        self._group_parsers: Dict[str, argparse._ArgumentGroup] = {}  # pylint: disable=protected-access
         self._argument_namespace = argparse.Namespace()
 
         LOGGER.info("STOPPING: initializing Parameters object")
@@ -357,9 +352,9 @@ class Parameters:  # pylint: disable=too-many-instance-attributes
         only: Sequence[str] = ("environment", "configuration", "argument"),
         action: str = "store",
         nargs: Optional[Union[int, str]] = None,
-        const: Optional[Value] = None,
-        default: Optional[Value] = None,
-        type: Optional[Callable[[str], Value]] = None,  # pylint: disable=redefined-builtin
+        const: Optional[Any] = None,
+        default: Optional[Any] = None,
+        type: Optional[Callable[[str], Any]] = None,  # pylint: disable=redefined-builtin
         choices: Optional[List[str]] = None,
         required: bool = False,
         help: Optional[str] = None,  # pylint: disable=redefined-builtin
@@ -484,18 +479,13 @@ class Parameters:  # pylint: disable=too-many-instance-attributes
 
         if "argument" in only:
             if group not in self._group_parsers:
-                self._group_parsers[group] = self._group_parsers["default"].add_argument_group(group)
+                self._group_parsers[group] = self._default_parser.add_argument_group(group)
 
-            if self._group_prefix and group != "default":
-                long_option = max(options, key=len)
-
-                options.remove(long_option)
-                options.append(long_option.replace("--", "--" + group.replace("_", "-") + "-"))
-
-                LOGGER.debug("options: %s", options)
-
-            group_add_argument = functools.partial(
-                self._group_parsers[group].add_argument,
+            add_argument_to: Callable[
+                [Union[argparse.ArgumentParser, argparse._ArgumentGroup]],  # pylint: disable=protected-access
+                functools.partial[argparse.Action],
+            ] = lambda x: functools.partial(
+                x.add_argument,
                 *options,
                 action=action,
                 const=const,
@@ -508,10 +498,23 @@ class Parameters:  # pylint: disable=too-many-instance-attributes
                 dest=dest,
             )
 
-            if nargs is not None:
-                group_add_argument(nargs=nargs)
+            if group == "default":
+                add_argument = add_argument_to(self._default_parser)
             else:
-                group_add_argument()
+                if self._group_prefix:
+                    long_option = max(options, key=len)
+
+                    options.remove(long_option)
+                    options.append(long_option.replace("--", "--" + group.replace("_", "-") + "-"))
+
+                    LOGGER.debug("options: %s", options)
+
+                add_argument = add_argument_to(self._group_parsers[group])
+
+            if nargs is not None:
+                add_argument(nargs=nargs)
+            else:
+                add_argument()
 
     def parse(self, only_known: bool = False) -> None:
         """Ensure all sources are ready to be queried.
@@ -546,9 +549,9 @@ class Parameters:  # pylint: disable=too-many-instance-attributes
         if only_known:
             args = [_ for _ in copy.copy(sys.argv) if not re.match("-h|--help", _)]
 
-            self._group_parsers["default"].parse_known_args(args=args, namespace=self._argument_namespace)
+            self._default_parser.parse_known_args(args=args, namespace=self._argument_namespace)
         else:
-            self._group_parsers["default"].parse_args(namespace=self._argument_namespace)
+            self._default_parser.parse_args(namespace=self._argument_namespace)
 
     def read_configuration_files(self) -> None:
         """Explicitly read the configuration files.
