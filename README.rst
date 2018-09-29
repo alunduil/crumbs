@@ -21,6 +21,22 @@ Getting Started
 
 Usage of this package is outlined in the documentation_.
 
+Very simple example::
+
+  from crumbs import Parameters
+
+  parameters = Parameters()
+  parameters.add_parameter(options=["--foo"])
+  parameters.parse()
+  parameters["foo"]
+
+.. note::
+
+  ``add_parameter`` is only a slight modification on
+  ``argparse.ArgumetParser.add_argument``.  The major difference is all
+  positional arguments to ``argparse``'s version are handled by the ``options``
+  argument in ours.
+
 Reporting Issues
 ----------------
 
