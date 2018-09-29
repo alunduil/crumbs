@@ -20,7 +20,6 @@ import functools
 import logging
 import os
 import re
-import builtins
 import sys
 import warnings
 
@@ -31,24 +30,7 @@ from typing import Any, Dict, Optional, List, Sequence, Callable, Union
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.propagate = False
-try:
-    LOGGER.addHandler(logging.NullHandler())
-except:  # pylint: disable=bare-except
-
-    class NullHandler(logging.Handler):
-        """Logging Handler that does nothing."""
-
-        def emit(self, record: Any) -> None:
-            _ = record  # vulture
-
-    LOGGER.addHandler(NullHandler())
-
-if "ResourceWarning" not in vars(builtins):
-
-    class ResourceWarning(Warning):  # pylint: disable=redefined-builtin
-        """Back-ported ResourceWarning."""
-
-        pass
+LOGGER.addHandler(logging.NullHandler())
 
 
 class Parameters:  # pylint: disable=too-many-instance-attributes
@@ -201,7 +183,9 @@ class Parameters:  # pylint: disable=too-many-instance-attributes
 
         LOGGER.info("STOPPING: initializing Parameters object")
 
-    def __getitem__(self, parameter_name: str) -> Any:  # pylint: disable=too-many-branches,too-many-statements
+    def __getitem__(  # pylint: disable=too-many-branches,too-many-locals,too-many-statements
+        self, parameter_name: str
+    ) -> Any:
         """Return the value of the requested parameter (by name).
 
         Given the ``parameter_name``, this method returns the found value for
@@ -260,20 +244,22 @@ class Parameters:  # pylint: disable=too-many-instance-attributes
             self.parameters[parameter_name]["environment_prefix"],
         )
 
-        _ = "_".join(parameter_name.replace("default.", "", 1).split(".")).upper()
+        environment_variable_name = "_".join(parameter_name.replace("default.", "", 1).split(".")).upper()
 
         if self.parameters[parameter_name]["environment_prefix"] is not None:
-            _ = self.parameters[parameter_name]["environment_prefix"] + "_" + _
+            environment_variable_name = (
+                self.parameters[parameter_name]["environment_prefix"] + "_" + environment_variable_name
+            )
 
-        LOGGER.debug("environment variable: %s", _)
+        LOGGER.debug("environment variable: %s", environment_variable_name)
 
-        value = os.environ.get(_, default)
-        assert value is not None
+        value = os.environ.get(environment_variable_name, default)
 
-        try:
-            value = os.path.expandvars(value)
-        except TypeError:
-            pass
+        if value is not None:
+            try:
+                value = os.path.expandvars(value)
+            except TypeError:
+                pass
 
         LOGGER.info("environment: %s", value)
 
@@ -344,7 +330,7 @@ class Parameters:  # pylint: disable=too-many-instance-attributes
             LOGGER.warning("could not read %s", file_name)
             warnings.warn("could not read {}".format(file_name), ResourceWarning)
 
-    def add_parameter(  # pylint: disable=too-many-arguments,too-many-locals
+    def add_parameter(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches
         self,
         options: List[str],
         environment_prefix: Optional[str] = None,
@@ -485,17 +471,7 @@ class Parameters:  # pylint: disable=too-many-instance-attributes
                 [Union[argparse.ArgumentParser, argparse._ArgumentGroup]],  # pylint: disable=protected-access
                 functools.partial[argparse.Action],
             ] = lambda x: functools.partial(
-                x.add_argument,
-                *options,
-                action=action,
-                const=const,
-                default=default,
-                type=type,
-                choices=choices,
-                required=required,
-                help=help,
-                metavar=metavar,
-                dest=dest,
+                x.add_argument, *options, action=action, default=default, required=required, help=help
             )
 
             if group == "default":
@@ -512,9 +488,21 @@ class Parameters:  # pylint: disable=too-many-instance-attributes
                 add_argument = add_argument_to(self._group_parsers[group])
 
             if nargs is not None:
-                add_argument(nargs=nargs)
-            else:
-                add_argument()
+                add_argument = functools.partial(add_argument, nargs=nargs)
+
+            if const is not None:
+                add_argument = functools.partial(add_argument, const=const)
+
+            if type is not None and action in ["store", "append"]:
+                add_argument = functools.partial(add_argument, type=type)
+
+            if choices is not None:
+                add_argument = functools.partial(add_argument, choices=choices)
+
+            if metavar is not None:
+                add_argument = functools.partial(add_argument, metavar=metavar)
+
+            add_argument()
 
     def parse(self, only_known: bool = False) -> None:
         """Ensure all sources are ready to be queried.

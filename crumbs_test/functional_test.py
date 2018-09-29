@@ -6,25 +6,16 @@ import functools
 import os
 import sys
 import tempfile
+from configparser import SafeConfigParser
 
 from crumbs import Parameters
 from crumbs_test.common_test import BaseParametersTest
-
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
-try:
-    from configparser import SafeConfigParser
-except ImportError:
-    from ConfigParser import SafeConfigParser
 
 
 class ParametersAddConfigurationFileTest(BaseParametersTest):
     """Add Configuration File Tests."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         super(ParametersAddConfigurationFileTest, self).setUp()
 
         tmp_fh = tempfile.NamedTemporaryFile(mode="w")
@@ -36,9 +27,9 @@ class ParametersAddConfigurationFileTest(BaseParametersTest):
 
         self.file_name = tmp_fh.name
 
-    def _assert_configuration_readable(self):
-        self.p.add_parameter(options=("--foo",))
-        self.p.add_parameter(options=("--bar",))
+    def _assert_configuration_readable(self) -> None:
+        self.p.add_parameter(options=["--foo"])
+        self.p.add_parameter(options=["--bar"])
 
         self.p.add_configuration_file(self.file_name)
 
@@ -50,14 +41,14 @@ class ParametersAddConfigurationFileTest(BaseParametersTest):
         self.assertEqual("bar", self.p["default.foo"])
         self.assertIsNone(self.p["default.bar"])
 
-    def test_add_configuration_file(self):
+    def test_add_configuration_file(self) -> None:
         """Parameters().add_configuration_file()"""
 
         self.p = Parameters()  # pylint: disable=attribute-defined-outside-init,invalid-name
 
         self._assert_configuration_readable()
 
-    def test_add_configuration_file_with_explicit_read(self):
+    def test_add_configuration_file_with_explicit_read(self) -> None:
         """Parameters().add_configuration_file()—re-read"""
 
         self.p = Parameters()  # pylint: disable=attribute-defined-outside-init
@@ -73,27 +64,20 @@ class ParametersAddConfigurationFileTest(BaseParametersTest):
         self.assertEqual("foo", self.p["default.bar"])
 
 
-class ParametersReadTest(unittest.TestCase):
+class ParametersReadTest(BaseParametersTest):
     """Parameter Read Tests."""
 
-    def setUp(self):
-        self.original_argv0 = sys.argv[0]
-
-        def _():
-            sys.argv[0] = self.original_argv0
-
-        self.addCleanup(_)
-
-        sys.argv[0] = "crumbs"
+    def setUp(self) -> None:
+        super().setUp()
 
         self.p = Parameters()  # pylint: disable=invalid-name
 
-    def populateMulti(self, group=False):  # pylint: disable=invalid-name,unused-argument
+    def populateMulti(self, group: bool = False) -> None:  # pylint: disable=invalid-name,unused-argument
         """Add --multi to parameters."""
 
         self.p.add_parameter(options=["--multi"])
 
-    def populateEnvironment(self):  # pylint: disable=invalid-name
+    def populateEnvironment(self) -> None:  # pylint: disable=invalid-name
         """Add environment varialbes to parse."""
 
         os.environ["CRUMBS_ENVIRONMENT_ONLY"] = "environment_only"
@@ -102,9 +86,9 @@ class ParametersReadTest(unittest.TestCase):
         self.addCleanup(functools.partial(os.unsetenv, "CRUMBS_ENVIRONMENT_ONLY"))
         self.addCleanup(functools.partial(os.unsetenv, "CRUMBS_MULTI"))
 
-        self.p.add_parameter(options=("--environment-only",), only=("environment",))
+        self.p.add_parameter(options=["--environment-only"], only=("environment",))
 
-    def populateArgumentVector(self):  # pylint: disable=invalid-name
+    def populateArgumentVector(self) -> None:  # pylint: disable=invalid-name
         """Populate Argument Vector."""
 
         sys.argv.extend(["--argument-only", "argument_only"])
@@ -117,7 +101,7 @@ class ParametersReadTest(unittest.TestCase):
 
         self.p.add_parameter(options=["--argument-only"], only=("argument",))
 
-    def populateConfiguration(self):  # pylint: disable=invalid-name
+    def populateConfiguration(self) -> None:  # pylint: disable=invalid-name
         """Populate Configuration File."""
 
         tmp_fh = tempfile.NamedTemporaryFile(mode="w")
@@ -133,10 +117,10 @@ class ParametersReadTest(unittest.TestCase):
 
         self.addCleanup(tmp_fh.close)
 
-        self.p.add_parameter(options=("--configuration-only",), only=("configuration",))
+        self.p.add_parameter(options=["--configuration-only"], only=("configuration",))
         self.p.add_configuration_file(tmp_fh.name)
 
-    def populateTypes(self):  # pylint: disable=invalid-name
+    def populateTypes(self) -> None:  # pylint: disable=invalid-name
         """Populate types."""
 
         sys.argv.extend(["--type-int", "15"])
@@ -146,7 +130,7 @@ class ParametersReadTest(unittest.TestCase):
 
         self.p.add_parameter(options=["--type-int"], type=int, default=0)
 
-    def test_read_implicit_default_group(self):
+    def test_read_implicit_default_group(self) -> None:
         """Parameters()[key]—implicit default group"""
 
         self.populateEnvironment()
@@ -156,7 +140,7 @@ class ParametersReadTest(unittest.TestCase):
         self.assertEqual("environment_only", self.p["environment_only"])
         self.assertEqual("environment_only", self.p["default.environment_only"])
 
-    def test_read_underscores_or_hyphens(self):
+    def test_read_underscores_or_hyphens(self) -> None:
         """Parameters()[key]—indistinguishable characters: -, _"""
 
         self.populateEnvironment()
@@ -166,7 +150,7 @@ class ParametersReadTest(unittest.TestCase):
         self.assertEqual("environment_only", self.p["environment-only"])
         self.assertEqual("environment_only", self.p["environment_only"])
 
-    def test_read_types(self):
+    def test_read_types(self) -> None:
         """Parameters()[key]—type cast"""
 
         self.populateTypes()
@@ -176,48 +160,48 @@ class ParametersReadTest(unittest.TestCase):
         self.assertIsInstance(self.p["type_int"], int)
         self.assertEqual(15, self.p["type_int"])
 
-    def test_read_custom_environment_prefix(self):
+    def test_read_custom_environment_prefix(self) -> None:
         """Parameters()[key]—environment_prefix=custom"""
 
         os.environ["CUSTOM_CUSTOM_ENVIRONMENT"] = "custom_environment"
 
         self.addCleanup(functools.partial(os.unsetenv, "CUSTOM_CUSTOM_ENVIRONMENT"))
 
-        self.p.add_parameter(options=("--custom-environment",), only=("environment",), environment_prefix="custom")
+        self.p.add_parameter(options=["--custom-environment"], only=("environment",), environment_prefix="custom")
 
         self.p.parse()
 
         self.assertEqual("custom_environment", self.p["custom_environment"])
 
-    def test_read_empty_environment_prefix(self):
+    def test_read_empty_environment_prefix(self) -> None:
         """Parameters()[key]—environment_prefix=None"""
 
-        os.environ["CUSTOM_ENVIRONMENT"] = "custom_environment"
+        os.environ["CRUMBS_CUSTOM_ENVIRONMENT"] = "custom_environment"
 
-        self.addCleanup(functools.partial(os.unsetenv, "CUSTOM_ENVIRONMENT"))
+        self.addCleanup(functools.partial(os.unsetenv, "CRUMBS_CUSTOM_ENVIRONMENT"))
 
-        self.p.add_parameter(options=("--custom-environment",), only=("environment",), environment_prefix=None)
+        self.p.add_parameter(options=["--custom-environment"], only=("environment",), environment_prefix=None)
 
         self.p.parse()
 
         self.assertEqual("custom_environment", self.p["custom_environment"])
 
-    def test_read_environment_with_expansion(self):
+    def test_read_environment_with_expansion(self) -> None:
         """Parameters()[key]—with expansion"""
 
-        os.environ["FOO"] = "foo"
-        self.addCleanup(functools.partial(os.unsetenv, "FOO"))
+        os.environ["CRUMBS_FOO"] = "foo"
+        self.addCleanup(functools.partial(os.unsetenv, "CRUMBS_FOO"))
 
-        os.environ["EXPAND"] = "${FOO}"
-        self.addCleanup(functools.partial(os.unsetenv, "EXPAND"))
+        os.environ["CRUMBS_EXPAND"] = "${CRUMBS_FOO}"
+        self.addCleanup(functools.partial(os.unsetenv, "CRUMBS_EXPAND"))
 
-        self.p.add_parameter(options=("--expand",), only=("environment",), environment_prefix=None)
+        self.p.add_parameter(options=["--expand"], only=("environment",), environment_prefix=None)
 
         self.p.parse()
 
         self.assertEqual("foo", self.p["expand"])
 
-    def test_read_environment(self):
+    def test_read_environment(self) -> None:
         """Parameters()[key]—environment"""
 
         self.populateEnvironment()
@@ -228,7 +212,7 @@ class ParametersReadTest(unittest.TestCase):
         self.assertEqual("environment_only", self.p["environment_only"])
         self.assertEqual("environment_multi", self.p["multi"])
 
-    def test_read_configuration(self):
+    def test_read_configuration(self) -> None:
         """Parameters()[key]—configuration"""
 
         self.populateConfiguration()
@@ -239,18 +223,20 @@ class ParametersReadTest(unittest.TestCase):
         self.assertEqual("configuration_only", self.p["configuration_only"])
         self.assertEqual("configuration_multi", self.p["multi"])
 
-    def test_read_argument(self):
+    def test_read_argument(self) -> None:
         """Parameters()[key]—argument"""
 
         self.populateArgumentVector()
         self.populateMulti()
+
+        print("sys.argv:", sys.argv)
 
         self.p.parse()
 
         self.assertEqual("argument_only", self.p["argument_only"])
         self.assertEqual("argument_multi", self.p["multi"])
 
-    def test_read_environment_configuration(self):
+    def test_read_environment_configuration(self) -> None:
         """Parameters()[key]—environment,configuration"""
 
         self.populateEnvironment()
@@ -263,7 +249,7 @@ class ParametersReadTest(unittest.TestCase):
         self.assertEqual("configuration_only", self.p["configuration_only"])
         self.assertEqual("configuration_multi", self.p["multi"])
 
-    def test_read_environment_argument(self):
+    def test_read_environment_argument(self) -> None:
         """Parameters()[key]—environment,argument"""
 
         self.populateEnvironment()
@@ -276,7 +262,7 @@ class ParametersReadTest(unittest.TestCase):
         self.assertEqual("argument_only", self.p["argument_only"])
         self.assertEqual("argument_multi", self.p["multi"])
 
-    def test_read_configuration_argument(self):
+    def test_read_configuration_argument(self) -> None:
         """Parameters()[key]—configuration,argument"""
 
         self.populateConfiguration()
@@ -289,7 +275,7 @@ class ParametersReadTest(unittest.TestCase):
         self.assertEqual("argument_only", self.p["argument_only"])
         self.assertEqual("argument_multi", self.p["multi"])
 
-    def test_read_environment_configuration_argument(self):
+    def test_read_environment_configuration_argument(self) -> None:
         """Parameters()[key]—environment,configuration,argument"""
 
         self.populateEnvironment()

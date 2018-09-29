@@ -8,8 +8,7 @@ from typing import Any, Dict
 
 LOGGER = logging.getLogger(__name__)
 
-
-PARAMETERS: Dict[str, Dict] = {"valid": {}}
+PARAMETERS: Dict[str, Dict[str, Any]] = {"valid": {}}
 
 
 def add_parameter(parameters: Dict, parameter: Any) -> None:

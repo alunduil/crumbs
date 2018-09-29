@@ -4,6 +4,7 @@
 
 import copy
 import logging
+import sys
 import unittest
 
 from crumbs_test.fixtures_test import PARAMETERS
@@ -18,3 +19,12 @@ class BaseParametersTest(unittest.TestCase):
         super(BaseParametersTest, self).setUp()
 
         self.parameters = copy.deepcopy(PARAMETERS)
+
+        self.original_argv = sys.argv
+
+        def _() -> None:
+            sys.argv = self.original_argv
+
+        self.addCleanup(_)
+
+        sys.argv = ["crumbs"]
