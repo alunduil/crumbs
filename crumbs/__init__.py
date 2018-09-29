@@ -98,7 +98,7 @@ class Parameters(object):
                                    object.
     :``add_configuration_file``:   Add a file path to be searched for parameter
                                    values.
-    :``add_parameter``:            Add a parameter to Parameters object.
+    :``add_parameter``:            Add a parameter to ``Parameters`` object.
     :``parse``:                    Prepare ``Parameters`` for queries and ensure
                                    parameter values can be found.
     :``read_configuration_files``: Read all configuration files' values.

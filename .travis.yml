@@ -12,6 +12,6 @@ install:
   - "[[ ${TRAVIS_PYTHON_VERSION} == 2.6 ]] && pip install -q unittest2 || true"
 script:
   - "pip install -qU --compile ."
-  - "SPHINXOPTS='-n -W' make -eC docs html"
+  - "make -eC docs html"
   - "flake8"
   - "nosetests"
