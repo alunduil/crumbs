@@ -8,9 +8,9 @@ configuration files, and command line arguments.  The dictionary-like interface
 makes interacting with these disparate resources much simpler.  It also allows
 parameters' values to be set in any of the three sources and selects an
 appropriate value when a parameter's value is specified in multiple sources.
-This way the most expected value, according to the normal prcedence—command
-line arguments then configuration files then environment variables—is always
-returned.
+This way the most expected value is always returned according to the following
+prcedence: command line arguments then configuration files then environment
+variables.
 
 I am providing code in the repository to you under an open source license.
 Because this is my personal repository, the license you receive to my code is
