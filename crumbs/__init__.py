@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 logger.propagate = False
 try:
     logger.addHandler(logging.NullHandler())
-except:
+except:  # noqa: E722
     class NullHandler(logging.Handler):
         def emit(self, record):
             pass

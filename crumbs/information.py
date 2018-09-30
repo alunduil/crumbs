@@ -4,7 +4,7 @@
 # See COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 NAME = 'crumbs'
-VERSION = '2.1.0'
+VERSION = '2.1.1'
 DESCRIPTION = 'Generalized all-in-one parameters module.'
 AUTHOR = 'Alex Brandt'
 AUTHOR_EMAIL = 'alunduil@alunduil.com'
